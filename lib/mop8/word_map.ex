@@ -15,33 +15,34 @@ defmodule Mop8.WordMap do
   end
 
   @spec put(t(), Ngram.words()) :: t()
-  def put(word_map, []) when is_map(word_map) do
-    word_map
+  def put(word_map, words) when is_map(word_map) do
+    case words do
+      [] ->
+        word_map
+
+      [_] ->
+        # FIXME: Handle the shortest sentence.
+        word_map
+
+      [current_word | [next_word | _] = rest] ->
+        case word_map[current_word] do
+          nil ->
+            Map.put(word_map, current_word, %{next_word => 1})
+
+          count_map ->
+            Map.put(word_map, current_word, count_word(count_map, next_word))
+        end
+        |> put(rest)
+    end
   end
 
-  def put(word_map, [_]) when is_map(word_map) do
-    # FIXME: Handle the shortest sentence.
-    word_map
-  end
+  defp count_word(count_map, word) when is_map(count_map) and is_binary(word) do
+    case count_map[word] do
+      nil ->
+        Map.put(count_map, word, 1)
 
-  def put(word_map, [x | [y | _] = rest]) when is_map(word_map) do
-    {_, word_map} =
-      Map.get_and_update(word_map, x, fn
-        nil ->
-          {nil, %{y => 1}}
-
-        count_map ->
-          Map.get_and_update(count_map, y, fn
-            nil ->
-              # Initialize.
-              {nil, 1}
-
-            v ->
-              # Increment the count.
-              {v, v + 1}
-          end)
-      end)
-
-    put(word_map, rest)
+      count ->
+        Map.put(count_map, word, 1 + count)
+    end
   end
 end
