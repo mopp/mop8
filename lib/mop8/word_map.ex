@@ -20,6 +20,7 @@ defmodule Mop8.WordMap do
   end
 
   def put(word_map, [_]) when is_map(word_map) do
+    # FIXME: Handle the shortest sentence.
     word_map
   end
 
