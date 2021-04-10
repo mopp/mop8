@@ -1,5 +1,6 @@
 defmodule Mop8Test do
   use ExUnit.Case
+  alias Mop8.Ngram
   alias Mop8.WordMap
   doctest Mop8
 
@@ -7,41 +8,10 @@ defmodule Mop8Test do
     assert Mop8.hello() == :world
   end
 
-  test "bigram" do
-    assert(
-      [
-        "今日",
-        "日は",
-        "はい",
-        "いい",
-        "い天",
-        "天気",
-        "気で",
-        "です",
-        "すね",
-        "ね。"
-      ] = Mop8.bigram("今日はいい天気ですね。")
-    )
-
-    assert(
-      [
-        "ああ"
-      ] = Mop8.bigram("ああ")
-    )
-
-    assert(
-      [
-        "あ"
-      ] = Mop8.bigram("あ")
-    )
-
-    assert([] = Mop8.bigram(""))
-  end
-
   test "construct_sentence" do
     :rand.seed(:exrop, {123, 44, 55})
 
-    bigram = Mop8.bigram("今日はいい天気ですね。")
+    bigram = Ngram.bigram("今日はいい天気ですね。")
 
     word_map =
       WordMap.new()
@@ -57,7 +27,7 @@ defmodule Mop8Test do
 
     gram_map =
       source_sentences
-      |> Enum.map(&Mop8.bigram/1)
+      |> Enum.map(&Ngram.bigram/1)
       |> Enum.reduce(word_map, &WordMap.put(&2, &1))
 
     assert("日はいい天気でしたね。" == Mop8.construct_sentence(gram_map))

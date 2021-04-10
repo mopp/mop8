@@ -1,5 +1,6 @@
 defmodule Mop8.WordMapTest do
   use ExUnit.Case
+  alias Mop8.Ngram
   alias Mop8.WordMap
 
   test "new" do
@@ -10,7 +11,7 @@ defmodule Mop8.WordMapTest do
     word_map = WordMap.new()
     assert(%{} == WordMap.put(word_map, []))
 
-    bigram = Mop8.bigram("今日はいい天気ですね。")
+    bigram = Ngram.bigram("今日はいい天気ですね。")
     word_map = WordMap.put(word_map, bigram)
 
     assert(

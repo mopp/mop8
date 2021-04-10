@@ -16,29 +16,6 @@ defmodule Mop8 do
     :world
   end
 
-  def bigram(input) do
-    input
-    |> String.graphemes()
-    |> bigram([])
-    |> Enum.reverse()
-  end
-
-  defp bigram([], _) do
-    []
-  end
-
-  defp bigram([x], acc) do
-    [x | acc]
-  end
-
-  defp bigram([x, y], acc) do
-    [x <> y | acc]
-  end
-
-  defp bigram([x | [y | _] = rest], acc) do
-    bigram(rest, [x <> y | acc])
-  end
-
   def construct_sentence(gram_map) do
     {word, count_map} = Enum.random(gram_map)
     construct_sentence(gram_map, count_map, word)
