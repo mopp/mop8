@@ -11,7 +11,7 @@ defmodule Mop8.WordMapTest do
     word_map = WordMap.new()
     assert(%{} == WordMap.put(word_map, []))
 
-    bigram = Ngram.bigram("今日はいい天気ですね。")
+    bigram = Ngram.encode("今日はいい天気ですね。")
     word_map = WordMap.put(word_map, bigram)
 
     assert(

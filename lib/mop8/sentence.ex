@@ -1,13 +1,16 @@
 defmodule Mop8.Sentence do
   alias Mop8.WordMap
+  alias Mop8.Ngram
 
-  @spec construct(WordMap.t()) :: String.t()
+  @spec construct(WordMap.t()) :: Ngram.words()
   def construct(word_map) do
     {word, count_map} = Enum.random(word_map)
-    construct(word_map, count_map, word)
+
+    construct(word_map, count_map, [word])
+    |> Enum.reverse()
   end
 
-  defp construct(word_map, count_map, sentence) do
+  defp construct(word_map, count_map, words) do
     # Do roulette selection
     # NOTE: Introduce cache for maximum value if the performance gets slow down.
     selector =
@@ -22,15 +25,11 @@ defmodule Mop8.Sentence do
 
     case word_map[word] do
       nil ->
-        append_ngram_word(sentence, word)
+        [word | words]
 
       count_map ->
-        construct(word_map, count_map, append_ngram_word(sentence, word))
+        construct(word_map, count_map, [word | words])
     end
-  end
-
-  defp append_ngram_word(sentence, word, n \\ 2) do
-    sentence <> String.slice(word, (n - 1)..-1)
   end
 
   # FIXME: Create module.
