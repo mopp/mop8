@@ -3,17 +3,21 @@ defmodule Mop8.Application do
   # for more information on OTP Applications
   @moduledoc false
 
+  alias Mop8.Slack
   use Application
 
   @impl true
   def start(_type, _args) do
-    children = [
-      {Mop8.Slack.Bot, "dummy URL"}
-    ]
+    with {:ok, websocket_url} <- Slack.WebSocket.fetch_url() do
+      children = [
+        {Slack.Bot, websocket_url}
+      ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Mop8.Supervisor]
-    Supervisor.start_link(children, opts)
+      opts = [strategy: :one_for_one, name: Mop8.Supervisor]
+      Supervisor.start_link(children, opts)
+    else
+      {:error, reason} ->
+        {:error, {:fetch_endpoint, reason}}
+    end
   end
 end

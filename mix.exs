@@ -22,6 +22,8 @@ defmodule Mop8.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:httpoison, "~> 1.8"},
+      {:poison, "~> 3.1"},
       {:websockex, "~> 0.4.3"},
       {:dialyxir, "~> 1.1", only: [:dev], runtime: false}
     ]
