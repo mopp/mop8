@@ -22,6 +22,8 @@ defmodule Mop8.Slack.Bot do
 
   @impl WebSockex
   def handle_frame({:text, message}, state) do
+    IO.inspect("Frame received. message: #{message}")
+
     message =
       try do
         Poison.decode!(message)
@@ -31,7 +33,19 @@ defmodule Mop8.Slack.Bot do
           raise error
       end
 
-    {:ok, state}
+    case message["type"] do
+      "hello" ->
+        {:ok, state}
+
+      "events_api" ->
+        body =
+          %{
+            envelope_id: message["envelope_id"]
+          }
+          |> Poison.encode!()
+
+        {:reply, {:text, body}, state}
+    end
   end
 
   @impl WebSockex
