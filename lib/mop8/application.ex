@@ -8,8 +8,7 @@ defmodule Mop8.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: Mop8.Worker.start_link(arg)
-      # {Mop8.Worker, arg}
+      {Mop8.Slack.Bot, "dummy URL"}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
