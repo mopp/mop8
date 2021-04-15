@@ -24,6 +24,7 @@ defmodule Mop8.MixProject do
     [
       {:httpoison, "~> 1.8"},
       {:poison, "~> 3.1"},
+      {:slack, "~> 0.23.5"},
       {:websockex, "~> 0.4.3"},
       {:dialyxir, "~> 1.1", only: [:dev], runtime: false}
     ]
