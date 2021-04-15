@@ -11,7 +11,7 @@ defmodule Mop8.Application do
     Application.put_env(:slack, :api_token, System.fetch_env!("SLACK_BOT_USER_OAUTH_TOKEN"))
 
     children = [
-      {Mop8.Bot, nil},
+      {Mop8.BotWorker, nil},
       {Slack.SocketMode.Client, nil}
     ]
 

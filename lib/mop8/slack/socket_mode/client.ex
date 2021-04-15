@@ -1,6 +1,6 @@
 defmodule Mop8.Slack.SocketMode.Client do
   require Logger
-  alias Mop8.Bot
+  alias Mop8.BotWorker
   use WebSockex
 
   def start_link(_) do
@@ -44,7 +44,21 @@ defmodule Mop8.Slack.SocketMode.Client do
         {:ok, state}
 
       "events_api" ->
-        Bot.send_message(message)
+        case message["payload"] do
+          %{
+            "type" => "event_callback",
+            "event" => %{
+              "event_ts" => event_ts,
+              "text" => text,
+              "type" => "message",
+              "user" => user
+            }
+          } ->
+            BotWorker.send_message({user, text, event_ts})
+
+          _ ->
+            nil
+        end
 
         body =
           %{
