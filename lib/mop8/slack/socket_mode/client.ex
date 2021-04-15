@@ -37,7 +37,7 @@ defmodule Mop8.Slack.SocketMode.Client do
           raise error
       end
 
-    IO.inspect("Frame received. message: #{inspect(message)}")
+    Logger.info("Frame received. message: #{inspect(message)}")
 
     case message["type"] do
       "hello" ->
@@ -58,21 +58,21 @@ defmodule Mop8.Slack.SocketMode.Client do
 
   @impl WebSockex
   def handle_cast({:send, {_type, _msg} = frame}, state) do
-    IO.inspect("handle_cast: #{inspect(frame)}")
+    Logger.info("handle_cast: #{inspect(frame)}")
 
     {:reply, frame, state}
   end
 
   @impl WebSockex
   def handle_info(msg, state) do
-    IO.inspect("handle_info: #{inspect(msg)}")
+    Logger.info("handle_info: #{inspect(msg)}")
 
     {:ok, state}
   end
 
   @impl WebSockex
   def terminate(reason, _state) do
-    IO.inspect("terminate. reason: #{inspect(reason)}")
+    Logger.info("terminate. reason: #{inspect(reason)}")
 
     :ok
   end
