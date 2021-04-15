@@ -7,7 +7,8 @@ defmodule Mop8.MixProject do
       version: "0.1.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -27,6 +28,12 @@ defmodule Mop8.MixProject do
       {:slack, "~> 0.23.5"},
       {:websockex, "~> 0.4.3"},
       {:dialyxir, "~> 1.1", only: [:dev], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      test: "test --no-start"
     ]
   end
 end
