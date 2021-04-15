@@ -1,9 +1,15 @@
-defmodule Mop8.Slack.Bot do
+defmodule Mop8.Slack.SocketMode.Client do
   require Logger
+  alias Mop8.Bot
   use WebSockex
 
-  def start_link(url) do
-    WebSockex.start_link(url, __MODULE__, nil)
+  def start_link(_) do
+    with {:ok, websocket_url} <- fetch_url() do
+      WebSockex.start_link(websocket_url, __MODULE__, nil)
+    else
+      {:error, reason} ->
+        {:error, {:fetch_endpoint, reason}}
+    end
   end
 
   @impl WebSockex
@@ -38,6 +44,8 @@ defmodule Mop8.Slack.Bot do
         {:ok, state}
 
       "events_api" ->
+        Bot.send_message(message)
+
         body =
           %{
             envelope_id: message["envelope_id"]
@@ -67,5 +75,31 @@ defmodule Mop8.Slack.Bot do
     IO.inspect("terminate. reason: #{inspect(reason)}")
 
     :ok
+  end
+
+  defp fetch_url do
+    HTTPoison.start()
+
+    url = "https://slack.com/api/apps.connections.open"
+
+    headers = [
+      {"Content-Type", "application/x-www-form-urlencoded"},
+      {"Authorization", "Bearer #{System.fetch_env!("SLACK_APP_LEVEL_TOKEN")}"}
+    ]
+
+    with {:ok, response} <- HTTPoison.post(url, "", headers),
+         200 <- response.status_code,
+         {:ok, slack_response} <- Poison.decode(response.body) do
+      case slack_response do
+        %{"ok" => true, "url" => websocket_url} ->
+          {:ok, websocket_url}
+
+        %{"ok" => false, "error" => reason} ->
+          {:error, reason}
+      end
+    else
+      error ->
+        error
+    end
   end
 end

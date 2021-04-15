@@ -10,16 +10,12 @@ defmodule Mop8.Application do
   def start(_type, _args) do
     Application.put_env(:slack, :api_token, System.fetch_env!("SLACK_BOT_USER_OAUTH_TOKEN"))
 
-    with {:ok, websocket_url} <- Slack.WebSocket.fetch_url() do
-      children = [
-        {Slack.Bot, websocket_url}
-      ]
+    children = [
+      {Mop8.Bot, nil},
+      {Slack.SocketMode.Client, nil}
+    ]
 
-      opts = [strategy: :one_for_one, name: Mop8.Supervisor]
-      Supervisor.start_link(children, opts)
-    else
-      {:error, reason} ->
-        {:error, {:fetch_endpoint, reason}}
-    end
+    opts = [strategy: :one_for_one, name: Mop8.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 end
