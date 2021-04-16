@@ -13,6 +13,14 @@ defmodule Mop8.TokenizerTest do
     assert(
       [
         {:text, "てすと"},
+        {:user_id, "X01X6T8LTAT"},
+        {:text, "うみゃー"}
+      ] == Tokenizer.tokenize("てすと<@X01X6T8LTAT>うみゃー")
+    )
+
+    assert(
+      [
+        {:text, "てすと"},
         {:code, "aa\nああ"},
         {:text, "てすと"}
       ] == Tokenizer.tokenize("てすと\n```aa\nああ```\nてすと")
