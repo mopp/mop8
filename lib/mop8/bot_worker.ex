@@ -17,6 +17,7 @@ defmodule Mop8.BotWorker do
 
     state = %{
       target_user_id: System.fetch_env!("TARGET_USER_ID"),
+      bot_user_id: System.fetch_env!("BOT_USER_ID"),
       # TODO: Read WordMap from store.
       word_map: Mop8.WordMap.new()
     }
@@ -29,13 +30,24 @@ defmodule Mop8.BotWorker do
         {:message, message},
         %{
           target_user_id: target_user_id,
+          bot_user_id: bot_user_id,
           word_map: word_map
         } = state
       ) do
-    word_map = Bot.handle_message(word_map, target_user_id, message)
+    state =
+      case Bot.handle_message(word_map, target_user_id, bot_user_id, message) do
+        {:ok, {:reply, sentence}} ->
+          Logger.info("Reply: #{sentence}")
+          state
 
-    Logger.info("word_map: #{inspect(word_map)}")
+        {:ok, {:update, word_map}} ->
+          Logger.info("WordMap updated: #{inspect(word_map)}")
+          %{state | word_map: word_map}
 
-    {:noreply, %{state | word_map: word_map}}
+        {:ok, :ignore} ->
+          state
+      end
+
+    {:noreply, state}
   end
 end
