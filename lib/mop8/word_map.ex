@@ -36,6 +36,30 @@ defmodule Mop8.WordMap do
     end
   end
 
+  # TODO: Separate it to infrastructure layer.
+  @spec load(Path.t()) :: {:ok, t()} | {:error, reason :: any()}
+  def load(filepath) do
+    case File.read(Path.expand(filepath)) do
+      {:ok, raw} ->
+        Poison.decode(raw)
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  # TODO: Separate it to infrastructure layer.
+  @spec store(Path.t(), t()) :: :ok | {:error, reason :: any()}
+  def store(filepath, word_map) do
+    case Poison.encode(word_map) do
+      {:ok, raw} ->
+        File.write(Path.expand(filepath), raw)
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
   defp count_word(count_map, word) when is_map(count_map) and is_binary(word) do
     case count_map[word] do
       nil ->
