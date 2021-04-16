@@ -1,6 +1,7 @@
 defmodule Mop8.BotWorker do
   require Logger
   alias Mop8.Bot
+  alias Mop8.WordMap
   use GenServer
 
   def start_link(_) do
@@ -16,21 +17,34 @@ defmodule Mop8.BotWorker do
     Logger.info("Init bot.")
 
     state = %{
+      target_channel_id: System.fetch_env!("TARGET_CHANNEL_ID"),
       target_user_id: System.fetch_env!("TARGET_USER_ID"),
       bot_user_id: System.fetch_env!("BOT_USER_ID"),
-      # TODO: Read WordMap from store.
-      word_map: Mop8.WordMap.new()
+      filepath: System.fetch_env!("MOP8_WORD_MAP_FILEPATH")
     }
 
-    {:ok, state}
+    {:ok, state, {:continue, nil}}
+  end
+
+  @impl GenServer
+  def handle_continue(_, %{filepath: filepath} = state) do
+    case WordMap.load(filepath) do
+      {:ok, word_map} ->
+        {:noreply, Map.put(state, :word_map, word_map)}
+
+      {:error, reason} ->
+        {:stop, {:loading_word_map_failed, reason}, state}
+    end
   end
 
   @impl GenServer
   def handle_cast(
         {:message, message},
         %{
+          target_channel_id: target_channel_id,
           target_user_id: target_user_id,
           bot_user_id: bot_user_id,
+          filepath: filepath,
           word_map: word_map
         } = state
       ) do
@@ -38,10 +52,17 @@ defmodule Mop8.BotWorker do
       case Bot.handle_message(word_map, target_user_id, bot_user_id, message) do
         {:ok, {:reply, sentence}} ->
           Logger.info("Reply: #{sentence}")
+
+          response = Slack.Web.Chat.post_message(target_channel_id, sentence)
+          Logger.info("Response: #{inspect(response)}")
+
           state
 
         {:ok, {:update, word_map}} ->
           Logger.info("WordMap updated: #{inspect(word_map)}")
+
+          :ok = WordMap.store(filepath, word_map)
+
           %{state | word_map: word_map}
 
         {:ok, :ignore} ->

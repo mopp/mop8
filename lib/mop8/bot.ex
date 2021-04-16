@@ -5,11 +5,8 @@ defmodule Mop8.Bot do
   alias Mop8.Tokenizer
   alias Mop8.WordMap
 
-  def handle_message(word_map, target_user_id, bot_user_id, {user_id, text, _event_ts} = message) do
-    Logger.info("message: #{inspect(message)}")
-
+  def handle_message(word_map, target_user_id, bot_user_id, {user_id, text, _event_ts}) do
     tokens = Tokenizer.tokenize(text)
-    Logger.info("tokens: #{inspect(tokens)}")
 
     cond do
       {:user_id, bot_user_id} == hd(tokens) ->
