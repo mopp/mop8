@@ -39,9 +39,13 @@ defmodule Mop8.Tokenizer do
           {:quote, String.slice(text, 5..-2)}
 
         true ->
-          {:text, text}
+          {:text, String.trim(text)}
       end
 
-    tokenize(rest, [token | acc])
+    if token == {:text, ""} do
+      tokenize(rest, acc)
+    else
+      tokenize(rest, [token | acc])
+    end
   end
 end
