@@ -17,9 +17,12 @@ defmodule Mop8.BotWorker do
     Logger.info("Init bot.")
 
     state = %{
+      bot_config:
+        Bot.Config.new(
+          System.fetch_env!("TARGET_USER_ID"),
+          System.fetch_env!("BOT_USER_ID")
+        ),
       target_channel_id: System.fetch_env!("TARGET_CHANNEL_ID"),
-      target_user_id: System.fetch_env!("TARGET_USER_ID"),
-      bot_user_id: System.fetch_env!("BOT_USER_ID"),
       filepath: System.fetch_env!("MOP8_WORD_MAP_FILEPATH")
     }
 
@@ -41,15 +44,14 @@ defmodule Mop8.BotWorker do
   def handle_cast(
         {:message, message},
         %{
+          bot_config: bot_config,
           target_channel_id: target_channel_id,
-          target_user_id: target_user_id,
-          bot_user_id: bot_user_id,
           filepath: filepath,
           word_map: word_map
         } = state
       ) do
     state =
-      case Bot.handle_message(word_map, target_user_id, bot_user_id, message) do
+      case Bot.handle_message(word_map, message, bot_config) do
         {:ok, {:reply, sentence}} ->
           Logger.info("Reply: #{sentence}")
 

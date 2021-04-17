@@ -4,8 +4,16 @@ defmodule Mop8.Bot do
   alias Mop8.Sentence
   alias Mop8.Tokenizer
   alias Mop8.WordMap
+  alias Mop8.Bot.Config
 
-  def handle_message(word_map, target_user_id, bot_user_id, {user_id, text, _event_ts}) do
+  def handle_message(
+        word_map,
+        {user_id, text, _event_ts},
+        %Config{
+          target_user_id: target_user_id,
+          bot_user_id: bot_user_id
+        }
+      ) do
     tokens = Tokenizer.tokenize(text)
 
     cond do
