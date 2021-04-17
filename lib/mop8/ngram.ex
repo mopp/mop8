@@ -8,7 +8,6 @@ defmodule Mop8.Ngram do
     end
 
     input
-    # TODO: Create tokenizer to control what is treated as the word
     |> String.graphemes()
     |> bigram([])
     |> Enum.reverse()
