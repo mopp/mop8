@@ -8,7 +8,8 @@ defmodule Mop8.MixProject do
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      dialyzer: dialyzer()
     ]
   end
 
@@ -34,6 +35,18 @@ defmodule Mop8.MixProject do
   defp aliases do
     [
       test: "test --no-start"
+    ]
+  end
+
+  defp dialyzer do
+    [
+      flags: [
+        :error_handling,
+        :race_conditions,
+        :unknown,
+        :unmatched_returns,
+        :underspecs
+      ]
     ]
   end
 end

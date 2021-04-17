@@ -92,7 +92,7 @@ defmodule Mop8.Slack.SocketMode.Client do
   end
 
   defp fetch_url do
-    HTTPoison.start()
+    {:ok, _} = HTTPoison.start()
 
     url = "https://slack.com/api/apps.connections.open"
 
