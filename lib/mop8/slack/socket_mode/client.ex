@@ -3,6 +3,8 @@ defmodule Mop8.Slack.SocketMode.Client do
   alias Mop8.BotWorker
   use WebSockex
 
+  @slack_api_url "https://slack.com/api/apps.connections.open"
+
   def start_link(_) do
     with {:ok, websocket_url} <- fetch_url() do
       WebSockex.start_link(websocket_url, __MODULE__, nil)
@@ -94,14 +96,12 @@ defmodule Mop8.Slack.SocketMode.Client do
   defp fetch_url do
     {:ok, _} = HTTPoison.start()
 
-    url = "https://slack.com/api/apps.connections.open"
-
     headers = [
       {"Content-Type", "application/x-www-form-urlencoded"},
       {"Authorization", "Bearer #{System.fetch_env!("SLACK_APP_LEVEL_TOKEN")}"}
     ]
 
-    with {:ok, response} <- HTTPoison.post(url, "", headers),
+    with {:ok, response} <- HTTPoison.post(@slack_api_url, "", headers),
          200 <- response.status_code,
          {:ok, slack_response} <- Poison.decode(response.body) do
       case slack_response do
