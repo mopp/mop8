@@ -4,10 +4,12 @@ defmodule Mop8.BotWorker do
   alias Mop8.WordMap
   use GenServer
 
+  @spec start_link(any()) :: GenServer.on_start()
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
+  @spec send_message(Bot.message()) :: :ok
   def send_message(message) do
     GenServer.cast(__MODULE__, {:message, message})
   end

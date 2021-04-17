@@ -6,6 +6,11 @@ defmodule Mop8.Bot do
   alias Mop8.WordMap
   alias Mop8.Bot.Config
 
+  # TODO: Create module.
+  @type message() :: {user_id :: String.t(), text :: String.t(), event_ts :: pos_integer()}
+
+  @spec handle_message(WordMap.t(), message(), Config.t()) ::
+          {:ok, {:reply, String.t()} | {:update, WordMap.t()} | :ignore}
   def handle_message(
         word_map,
         {user_id, text, _event_ts},

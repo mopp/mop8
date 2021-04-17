@@ -5,6 +5,7 @@ defmodule Mop8.Slack.SocketMode.Client do
 
   @slack_api_url "https://slack.com/api/apps.connections.open"
 
+  @spec start_link(any()) :: {:ok, pid()} | {:error, term()}
   def start_link(_) do
     with {:ok, websocket_url} <- fetch_url() do
       WebSockex.start_link(websocket_url, __MODULE__, nil)
