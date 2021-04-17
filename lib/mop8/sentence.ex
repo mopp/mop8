@@ -12,17 +12,19 @@ defmodule Mop8.Sentence do
   end
 
   defp construct(word_map, count_map, words) do
-    # Do roulette selection
-    # NOTE: Introduce cache for maximum value if the performance gets slow down.
-    selector =
-      Map.values(count_map)
-      |> Enum.sum()
-      |> :rand.uniform()
-
-    word =
+    result =
       count_map
       |> Map.to_list()
-      |> Selector.roulette(selector)
+      |> Selector.roulette()
+
+    word =
+      case result do
+        {:ok, word} ->
+          word
+
+        {:error, :no_element} ->
+          nil
+      end
 
     case word_map[word] do
       nil ->

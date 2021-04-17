@@ -4,32 +4,41 @@ defmodule Mop8.SelectorTest do
   alias Mop8.Selector
 
   test "roulette/1 selects value based on roulette selection" do
-    pairs = [
+    elements = [
       {:a, 1},
       {:b, 1},
       {:c, 1}
     ]
 
-    assert(:a == Selector.roulette(pairs, 1))
-    assert(:b == Selector.roulette(pairs, 2))
-    assert(:c == Selector.roulette(pairs, 3))
+    assert {:ok, :a} == Selector.roulette(elements, fn _ -> 1 end)
+    assert {:ok, :b} == Selector.roulette(elements, fn _ -> 2 end)
+    assert {:ok, :c} == Selector.roulette(elements, fn _ -> 3 end)
 
-    pairs = [
+    elements = [
       {:a, 2},
       {:b, 10},
       {:c, 2}
     ]
 
-    assert(:b == Selector.roulette(pairs, 3))
-    assert(:b == Selector.roulette(pairs, 12))
+    assert {:ok, :a} == Selector.roulette(elements, fn _ -> 2 end)
+    assert {:ok, :b} == Selector.roulette(elements, fn _ -> 3 end)
+    assert {:ok, :b} == Selector.roulette(elements, fn _ -> 12 end)
+    assert {:ok, :c} == Selector.roulette(elements, fn _ -> 13 end)
+  end
 
-    pairs = [
-      {:a, 10},
-      {:b, 10},
-      {:c, 10}
+  test "roulette/1 returns error when empty list is given" do
+    assert {:error, :no_element} == Selector.roulette([])
+  end
+
+  test "roulette/1 raises error when random number generator returns invalid value" do
+    elements = [
+      {:a, 1},
+      {:b, 1},
+      {:c, 1}
     ]
 
-    assert(:a == Selector.roulette(pairs, 10))
-    assert(:b == Selector.roulette(pairs, 19))
+    assert_raise RuntimeError, fn ->
+      Selector.roulette(elements, fn _ -> 4 end)
+    end
   end
 end
