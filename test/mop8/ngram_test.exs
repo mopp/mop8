@@ -3,7 +3,7 @@ defmodule Mop8.NgramTest do
 
   alias Mop8.Ngram
 
-  test "encode/1 divides the given string to n-gram (default N = 2)" do
+  test "encode/1 divides the given string to N-gram (default N = 2)" do
     assert [] == Ngram.encode("")
 
     assert ["あ"] == Ngram.encode("あ")
@@ -26,7 +26,7 @@ defmodule Mop8.NgramTest do
            ] == Ngram.encode("今日はいい天気ですね。")
   end
 
-  test "decode/1 concats the given words to a string" do
+  test "decode/1 concats the given N-gram to a string (default N = 2)" do
     assert "" == Ngram.decode([])
 
     assert "あい" == Ngram.decode(["あい"])
@@ -44,5 +44,21 @@ defmodule Mop8.NgramTest do
                "すね",
                "ね。"
              ])
+  end
+
+  test "encode/1 divides the given string to N-gram (N is given)" do
+    assert ["abc"] == Ngram.encode("abc", 3)
+
+    assert ["abc", "bcd"] == Ngram.encode("abcd", 3)
+
+    assert ["aaabbbcccd", "aabbbcccde"] == Ngram.encode("aaabbbcccde", 10)
+  end
+
+  test "decode/1 concats the given N-gram to a string (N is given)" do
+    assert "abc" == Ngram.decode(["abc"], 3)
+
+    assert "abcd" == Ngram.decode(["abc", "bcd"], 3)
+
+    assert "aaabbbcccde" == Ngram.decode(["aaabbbcccd", "aabbbcccde"], 10)
   end
 end

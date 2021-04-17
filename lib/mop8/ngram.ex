@@ -3,10 +3,6 @@ defmodule Mop8.Ngram do
 
   @spec encode(String.t(), pos_integer()) :: words()
   def encode(text, n \\ 2) do
-    if n != 2 do
-      raise "not supported yet"
-    end
-
     graphemes = String.graphemes(text)
 
     if length(graphemes) == 1 do
@@ -20,10 +16,6 @@ defmodule Mop8.Ngram do
 
   @spec decode(words(), pos_integer()) :: String.t()
   def decode(words, n \\ 2) do
-    if n != 2 do
-      raise "not supported yet"
-    end
-
     case words do
       [] ->
         ""
