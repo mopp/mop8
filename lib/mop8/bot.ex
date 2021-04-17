@@ -1,7 +1,6 @@
 defmodule Mop8.Bot do
   require Logger
   alias Mop8.Ngram
-  alias Mop8.Sentence
   alias Mop8.Tokenizer
   alias Mop8.WordMap
   alias Mop8.Bot.Config
@@ -24,7 +23,7 @@ defmodule Mop8.Bot do
     cond do
       {:user_id, bot_user_id} == hd(tokens) ->
         # It's mension to the bot. Create reply.
-        case Sentence.construct(word_map) do
+        case WordMap.build_sentence(word_map) do
           {:ok, sentence} ->
             {:ok, {:reply, Ngram.decode(sentence)}}
 

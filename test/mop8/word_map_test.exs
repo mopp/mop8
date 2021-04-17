@@ -67,4 +67,39 @@ defmodule Mop8.WordMapTest do
              } == word_map
     end
   end
+
+  describe "build_sentence/1" do
+    setup do
+      :rand.seed(:exrop, {123, 44, 55})
+
+      word_map =
+        WordMap.new()
+        |> WordMap.put(Ngram.encode("今日はいい天気ですね。"))
+
+      {:ok, %{word_map: word_map}}
+    end
+
+    test "generates a sentence based on the given WordMap", %{word_map: word_map} do
+      assert {:ok, sentence} = WordMap.build_sentence(word_map)
+      assert "はいい天気ですね。" == Ngram.decode(sentence)
+
+      source_sentences = [
+        "今日はいい天気でしたね。",
+        "明日はいい天気でしたね。",
+        "昨日はいい天気でしたよ。"
+      ]
+
+      word_map =
+        source_sentences
+        |> Enum.map(&Ngram.encode/1)
+        |> Enum.reduce(word_map, &WordMap.put(&2, &1))
+
+      assert {:ok, sentence} = WordMap.build_sentence(word_map)
+      assert "日はいい天気でしたね。" == Ngram.decode(sentence)
+    end
+
+    test "returns error when empty WordMap is given" do
+      assert {:error, :nothing_to_say} == WordMap.build_sentence(WordMap.new())
+    end
+  end
 end
