@@ -7,27 +7,15 @@ defmodule Mop8.Ngram do
       raise "not supported yet"
     end
 
-    text
-    |> String.graphemes()
-    |> bigram([])
-    |> Enum.reverse()
-  end
+    graphemes = String.graphemes(text)
 
-  @spec bigram([String.grapheme()], words()) :: words()
-  defp bigram([], _) do
-    []
-  end
-
-  defp bigram([x], acc) do
-    [x | acc]
-  end
-
-  defp bigram([x, y], acc) do
-    [x <> y | acc]
-  end
-
-  defp bigram([x | [y | _] = rest], acc) do
-    bigram(rest, [x <> y | acc])
+    if length(graphemes) == 1 do
+      graphemes
+    else
+      graphemes
+      |> Enum.chunk_every(n, 1, :discard)
+      |> Enum.map(&Enum.join/1)
+    end
   end
 
   @spec decode(words(), pos_integer()) :: String.t()

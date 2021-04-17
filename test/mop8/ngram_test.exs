@@ -10,6 +10,8 @@ defmodule Mop8.NgramTest do
 
     assert ["ああ"] == Ngram.encode("ああ")
 
+    assert ["あい", "いう"] == Ngram.encode("あいう")
+
     assert [
              "今日",
              "日は",
