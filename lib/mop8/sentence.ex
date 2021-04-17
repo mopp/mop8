@@ -1,6 +1,7 @@
 defmodule Mop8.Sentence do
   alias Mop8.WordMap
   alias Mop8.Ngram
+  alias Mop8.Selector
 
   @spec construct(WordMap.t()) :: Ngram.words()
   def construct(word_map) do
@@ -21,7 +22,7 @@ defmodule Mop8.Sentence do
     word =
       count_map
       |> Map.to_list()
-      |> do_roulette_selection(selector)
+      |> Selector.roulette(selector)
 
     case word_map[word] do
       nil ->
@@ -30,18 +31,5 @@ defmodule Mop8.Sentence do
       count_map ->
         construct(word_map, count_map, [word | words])
     end
-  end
-
-  # FIXME: Create module.
-  def do_roulette_selection(pairs, dart) when is_list(pairs) and is_integer(dart) do
-    Enum.reduce_while(pairs, 0, fn {value, weight}, acc ->
-      acc = weight + acc
-
-      if dart <= acc do
-        {:halt, value}
-      else
-        {:cont, acc}
-      end
-    end)
   end
 end

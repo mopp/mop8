@@ -28,34 +28,4 @@ defmodule Mop8.SentenceTest do
 
     assert("日はいい天気でしたね。" == Sentence.construct(word_map) |> Ngram.decode())
   end
-
-  test "do_roulette_selection" do
-    pairs = [
-      {:a, 1},
-      {:b, 1},
-      {:c, 1}
-    ]
-
-    assert(:a == Sentence.do_roulette_selection(pairs, 1))
-    assert(:b == Sentence.do_roulette_selection(pairs, 2))
-    assert(:c == Sentence.do_roulette_selection(pairs, 3))
-
-    pairs = [
-      {:a, 2},
-      {:b, 10},
-      {:c, 2}
-    ]
-
-    assert(:b == Sentence.do_roulette_selection(pairs, 3))
-    assert(:b == Sentence.do_roulette_selection(pairs, 12))
-
-    pairs = [
-      {:a, 10},
-      {:b, 10},
-      {:c, 10}
-    ]
-
-    assert(:a == Sentence.do_roulette_selection(pairs, 10))
-    assert(:b == Sentence.do_roulette_selection(pairs, 19))
-  end
 end
