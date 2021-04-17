@@ -31,23 +31,22 @@ defmodule Mop8.Ngram do
   end
 
   @spec decode(words(), pos_integer()) :: String.t()
-  def decode(_, n \\ 2)
-
-  def decode([word], n) do
+  def decode(words, n \\ 2) do
     if n != 2 do
       raise "not supported yet"
     end
 
-    word
-  end
+    case words do
+      [] ->
+        ""
 
-  def decode([head | rest], n) do
-    if n != 2 do
-      raise "not supported yet"
+      [word] ->
+        word
+
+      [head | rest] ->
+        Enum.reduce(rest, head, fn word, acc ->
+          acc <> String.slice(word, (n - 1)..-1)
+        end)
     end
-
-    Enum.reduce(rest, head, fn word, acc ->
-      acc <> String.slice(word, (n - 1)..-1)
-    end)
   end
 end

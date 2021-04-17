@@ -33,21 +33,23 @@ defmodule Mop8.NgramTest do
     assert([] = Ngram.encode(""))
   end
 
-  test "decode concats the given words to a string" do
-    assert(
-      "今日はいい天気ですね。" =
-        Ngram.decode([
-          "今日",
-          "日は",
-          "はい",
-          "いい",
-          "い天",
-          "天気",
-          "気で",
-          "です",
-          "すね",
-          "ね。"
-        ])
-    )
+  test "decode/1 concats the given words to a string" do
+    assert "" == Ngram.decode([])
+
+    assert "あい" == Ngram.decode(["あい"])
+
+    assert "今日はいい天気ですね。" ==
+             Ngram.decode([
+               "今日",
+               "日は",
+               "はい",
+               "いい",
+               "い天",
+               "天気",
+               "気で",
+               "です",
+               "すね",
+               "ね。"
+             ])
   end
 end
