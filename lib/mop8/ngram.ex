@@ -2,7 +2,7 @@ defmodule Mop8.Ngram do
   @type words() :: [String.t()]
 
   @spec encode(String.t(), pos_integer()) :: words()
-  def encode(text, n \\ 2) do
+  def encode(text, n \\ 2) when is_binary(text) and 0 < n do
     graphemes = String.graphemes(text)
 
     if length(graphemes) == 1 do
@@ -15,7 +15,7 @@ defmodule Mop8.Ngram do
   end
 
   @spec decode(words(), pos_integer()) :: String.t()
-  def decode(words, n \\ 2) do
+  def decode(words, n \\ 2) when is_list(words) and 0 < n do
     case words do
       [] ->
         ""
