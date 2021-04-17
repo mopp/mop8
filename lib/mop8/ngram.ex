@@ -2,12 +2,12 @@ defmodule Mop8.Ngram do
   @type words() :: [String.t()]
 
   @spec encode(String.t(), pos_integer()) :: words()
-  def encode(input, n \\ 2) do
+  def encode(text, n \\ 2) do
     if n != 2 do
       raise "not supported yet"
     end
 
-    input
+    text
     |> String.graphemes()
     |> bigram([])
     |> Enum.reverse()

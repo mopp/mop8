@@ -1,36 +1,27 @@
 defmodule Mop8.NgramTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
+
   alias Mop8.Ngram
 
-  test "encode divides the given string to n-gram" do
-    assert(
-      [
-        "今日",
-        "日は",
-        "はい",
-        "いい",
-        "い天",
-        "天気",
-        "気で",
-        "です",
-        "すね",
-        "ね。"
-      ] = Ngram.encode("今日はいい天気ですね。")
-    )
+  test "encode/1 divides the given string to n-gram (default N = 2)" do
+    assert [] == Ngram.encode("")
 
-    assert(
-      [
-        "ああ"
-      ] = Ngram.encode("ああ")
-    )
+    assert ["あ"] == Ngram.encode("あ")
 
-    assert(
-      [
-        "あ"
-      ] = Ngram.encode("あ")
-    )
+    assert ["ああ"] == Ngram.encode("ああ")
 
-    assert([] = Ngram.encode(""))
+    assert [
+             "今日",
+             "日は",
+             "はい",
+             "いい",
+             "い天",
+             "天気",
+             "気で",
+             "です",
+             "すね",
+             "ね。"
+           ] == Ngram.encode("今日はいい天気ですね。")
   end
 
   test "decode/1 concats the given words to a string" do
