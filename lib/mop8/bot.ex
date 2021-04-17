@@ -24,12 +24,13 @@ defmodule Mop8.Bot do
     cond do
       {:user_id, bot_user_id} == hd(tokens) ->
         # It's mension to the bot. Create reply.
-        sentence =
-          word_map
-          |> Sentence.construct()
-          |> Ngram.decode()
+        case Sentence.construct(word_map) do
+          {:ok, sentence} ->
+            {:ok, {:reply, Ngram.decode(sentence)}}
 
-        {:ok, {:reply, sentence}}
+          {:error, :nothing_to_say} ->
+            {:ok, :ignore}
+        end
 
       user_id == target_user_id ->
         # Store the target user words.

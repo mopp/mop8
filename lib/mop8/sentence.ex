@@ -3,12 +3,21 @@ defmodule Mop8.Sentence do
   alias Mop8.Ngram
   alias Mop8.Selector
 
-  @spec construct(WordMap.t()) :: Ngram.words()
-  def construct(word_map) do
-    {word, count_map} = Enum.random(word_map)
+  @spec construct(WordMap.t()) :: {:ok, Ngram.words()} | {:error, :nothing_to_say}
+  def construct(word_map) when is_map(word_map) do
+    if map_size(word_map) == 0 do
+      {:error, :nothing_to_say}
+    else
+      # Select first word.
+      {word, count_map} = Enum.random(word_map)
 
-    construct(word_map, count_map, [word])
-    |> Enum.reverse()
+      sentence =
+        word_map
+        |> construct(count_map, [word])
+        |> Enum.reverse()
+
+      {:ok, sentence}
+    end
   end
 
   defp construct(word_map, count_map, words) do
