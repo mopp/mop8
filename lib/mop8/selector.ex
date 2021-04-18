@@ -3,6 +3,7 @@ defmodule Mop8.Selector do
   @type weight :: pos_integer()
   @type element :: {value(), weight()}
   @type random_func() :: (pos_integer() -> pos_integer())
+  @type t :: ([element()] -> {:ok, element()} | {:error, :no_element})
 
   @spec roulette([element()], random_func()) :: {:ok, element()} | {:error, :no_element}
   def roulette(elements, rand \\ &:rand.uniform/1)

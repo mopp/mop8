@@ -18,52 +18,53 @@ defmodule Mop8.WordMapTest do
       word_map = WordMap.new()
 
       word_map = WordMap.put(word_map, ["あい", "うえ"])
-      assert %{"あい" => %{"うえ" => 1}} == word_map
-    end
-
-    test "stores the given words based on Ngram into the given WordMap" do
-      word_map = WordMap.new()
-      words = Ngram.encode("今日はいい天気ですね。")
-      word_map = WordMap.put(word_map, words)
 
       assert %{
-               "今日" => %{"日は" => 1},
-               "いい" => %{"い天" => 1},
-               "い天" => %{"天気" => 1},
-               "すね" => %{"ね。" => 1},
-               "です" => %{"すね" => 1},
-               "はい" => %{"いい" => 1},
-               "天気" => %{"気で" => 1},
-               "日は" => %{"はい" => 1},
-               "気で" => %{"です" => 1}
+               "あい" => %{count: 1, next_map: %{"うえ" => 1}},
+               "うえ" => %{count: 1, next_map: %{}}
              } == word_map
 
-      word_map = WordMap.put(word_map, words)
+      word_map = WordMap.put(word_map, ["あい", "ab"])
 
       assert %{
-               "今日" => %{"日は" => 2},
-               "いい" => %{"い天" => 2},
-               "い天" => %{"天気" => 2},
-               "すね" => %{"ね。" => 2},
-               "です" => %{"すね" => 2},
-               "はい" => %{"いい" => 2},
-               "天気" => %{"気で" => 2},
-               "日は" => %{"はい" => 2},
-               "気で" => %{"です" => 2}
+               "あい" => %{count: 2, next_map: %{"うえ" => 1, "ab" => 1}},
+               "うえ" => %{count: 1, next_map: %{}},
+               "ab" => %{count: 1, next_map: %{}}
              } == word_map
 
-      word_map = WordMap.put(word_map, ["今日", "日に"])
+      word_map = WordMap.put(word_map, ["あい"])
 
       assert %{
-               "今日" => %{"日は" => 2, "日に" => 1},
-               "いい" => %{"い天" => 2},
-               "い天" => %{"天気" => 2},
-               "すね" => %{"ね。" => 2},
-               "です" => %{"すね" => 2},
-               "はい" => %{"いい" => 2},
-               "天気" => %{"気で" => 2},
-               "日は" => %{"はい" => 2},
-               "気で" => %{"です" => 2}
+               "あい" => %{count: 3, next_map: %{"うえ" => 1, "ab" => 1}},
+               "うえ" => %{count: 1, next_map: %{}},
+               "ab" => %{count: 1, next_map: %{}}
+             } == word_map
+
+      word_map = WordMap.put(word_map, ["xy"])
+
+      assert %{
+               "あい" => %{count: 3, next_map: %{"うえ" => 1, "ab" => 1}},
+               "うえ" => %{count: 1, next_map: %{}},
+               "ab" => %{count: 1, next_map: %{}},
+               "xy" => %{count: 1, next_map: %{}}
+             } == word_map
+
+      word_map = WordMap.put(word_map, ["あい", "うえ"])
+
+      assert %{
+               "あい" => %{count: 4, next_map: %{"うえ" => 2, "ab" => 1}},
+               "うえ" => %{count: 2, next_map: %{}},
+               "ab" => %{count: 1, next_map: %{}},
+               "xy" => %{count: 1, next_map: %{}}
+             } == word_map
+
+      word_map = WordMap.put(word_map, ["ab", "うえ"])
+
+      assert %{
+               "あい" => %{count: 4, next_map: %{"うえ" => 2, "ab" => 1}},
+               "うえ" => %{count: 3, next_map: %{}},
+               "ab" => %{count: 2, next_map: %{"うえ" => 1}},
+               "xy" => %{count: 1, next_map: %{}}
              } == word_map
     end
   end
@@ -71,17 +72,6 @@ defmodule Mop8.WordMapTest do
   describe "build_sentence/1" do
     setup do
       :rand.seed(:exrop, {123, 44, 55})
-
-      word_map =
-        WordMap.new()
-        |> WordMap.put(Ngram.encode("今日はいい天気ですね。"))
-
-      {:ok, %{word_map: word_map}}
-    end
-
-    test "generates a sentence based on the given WordMap", %{word_map: word_map} do
-      assert {:ok, sentence} = WordMap.build_sentence(word_map)
-      assert "はいい天気ですね。" == Ngram.decode(sentence)
 
       source_sentences = [
         "今日はいい天気でしたね。",
@@ -92,14 +82,74 @@ defmodule Mop8.WordMapTest do
       word_map =
         source_sentences
         |> Enum.map(&Ngram.encode/1)
-        |> Enum.reduce(word_map, &WordMap.put(&2, &1))
+        |> Enum.reduce(WordMap.new(), &WordMap.put(&2, &1))
 
-      assert {:ok, sentence} = WordMap.build_sentence(word_map)
-      assert "日はいい天気でしたね。" == Ngram.decode(sentence)
+      {:ok, %{word_map: word_map}}
+    end
+
+    test "generates a sentence based on the given WordMap", %{word_map: word_map} do
+      {:ok, pid} = Agent.start_link(fn -> nil end)
+
+      test_selector = fn _ ->
+        Agent.get_and_update(pid, fn [head | rest] -> {head, rest} end)
+      end
+
+      # Set test pattern.
+      Agent.cast(pid, fn _ ->
+        [
+          {:ok, "よ。"},
+          {:error, :no_element}
+        ]
+      end)
+
+      assert {:ok, sentence} = WordMap.build_sentence(word_map, test_selector)
+      assert "よ。" == Ngram.decode(sentence)
+
+      # Set test pattern.
+      Agent.cast(pid, fn _ ->
+        [
+          {:ok, "たよ"},
+          {:ok, "よ。"},
+          {:error, :no_element}
+        ]
+      end)
+
+      assert {:ok, sentence} = WordMap.build_sentence(word_map, test_selector)
+      assert "たよ。" == Ngram.decode(sentence)
+
+      Agent.stop(pid)
     end
 
     test "returns error when empty WordMap is given" do
       assert {:error, :nothing_to_say} == WordMap.build_sentence(WordMap.new())
+    end
+  end
+
+  describe "load/1 and store/2" do
+    setup do
+      source_sentences = [
+        "今日はいい天気でしたね。",
+        "明日はいい天気でしたね。",
+        "昨日はいい天気でしたよ。"
+      ]
+
+      word_map =
+        source_sentences
+        |> Enum.map(&Ngram.encode/1)
+        |> Enum.reduce(WordMap.new(), &WordMap.put(&2, &1))
+
+      {:ok, %{word_map: word_map}}
+    end
+
+    @tag :tmp_dir
+    test "writes the WordMap into the file and reads the WordMap from the given file", %{
+      tmp_dir: tmp_dir,
+      word_map: word_map
+    } do
+      filepath = "#{tmp_dir}/mop8.json"
+
+      assert :ok == WordMap.store(filepath, word_map)
+      assert {:ok, word_map} == WordMap.load(filepath)
     end
   end
 end

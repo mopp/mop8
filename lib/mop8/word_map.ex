@@ -1,14 +1,17 @@
 defmodule Mop8.WordMap do
+  require Logger
+
   alias Mop8.Ngram
   alias Mop8.Selector
 
-  @type t() :: %{
-          String.t() => count_map()
-        }
-
-  @type count_map() :: %{
-          required(String.t()) => pos_integer()
-        }
+  @opaque t() :: %{
+            (count_map :: String.t()) => %{
+              required(:count) => pos_integer(),
+              required(:next_map) => %{
+                String.t() => pos_integer()
+              }
+            }
+          }
 
   @spec new() :: t()
   def new() do
@@ -16,65 +19,94 @@ defmodule Mop8.WordMap do
   end
 
   @spec put(t(), Ngram.words()) :: t()
-  def put(word_map, words) when is_map(word_map) do
+  def put(word_map, words) when is_map(word_map) and is_list(words) do
     case words do
       [] ->
         word_map
 
-      [_] ->
-        # FIXME: Handle the shortest sentence.
-        word_map
+      [word] ->
+        count_map =
+          case word_map[word] do
+            nil ->
+              %{count: 1, next_map: %{}}
+
+            %{count: count} = count_map ->
+              Map.put(count_map, :count, count + 1)
+          end
+
+        Map.put(word_map, word, count_map)
 
       [current_word | [next_word | _] = rest] ->
-        case word_map[current_word] do
-          nil ->
-            Map.put(word_map, current_word, %{next_word => 1})
+        count_map =
+          case word_map[current_word] do
+            nil ->
+              %{count: 1, next_map: %{next_word => 1}}
 
-          count_map ->
-            Map.put(word_map, current_word, count_word(count_map, next_word))
-        end
+            %{
+              count: current_count,
+              next_map: next_map
+            } = count_map ->
+              %{
+                count_map
+                | count: current_count + 1,
+                  next_map: Map.update(next_map, next_word, 1, &(&1 + 1))
+              }
+          end
+
+        word_map
+        |> Map.put(current_word, count_map)
         |> put(rest)
     end
   end
 
-  @spec build_sentence(t()) :: {:ok, Ngram.words()} | {:error, :nothing_to_say}
-  def build_sentence(word_map) when is_map(word_map) do
-    if map_size(word_map) == 0 do
-      {:error, :nothing_to_say}
-    else
-      # Select first word.
-      {word, count_map} = Enum.random(word_map)
+  @spec build_sentence(t(), Selector.t()) :: {:ok, Ngram.words()} | {:error, :nothing_to_say}
+  def build_sentence(word_map, selector \\ &Selector.roulette/1) when is_map(word_map) do
+    # Select the first word.
+    result =
+      word_map
+      |> Enum.map(fn {word, %{count: count}} -> {word, count} end)
+      |> selector.()
 
-      sentence =
-        word_map
-        |> build_sentence(count_map, [word])
-        |> Enum.reverse()
+    case result do
+      {:ok, word} ->
+        sentence =
+          word_map
+          |> build_sentence(word_map[word][:next_map], selector, [word])
+          |> Enum.reverse()
 
-      {:ok, sentence}
+        {:ok, sentence}
+
+      {:error, :no_element} ->
+        {:error, :nothing_to_say}
     end
   end
 
-  defp build_sentence(word_map, count_map, words) do
+  defp build_sentence(word_map, next_map, selector, words) do
+    # Select the next word.
     result =
-      count_map
+      next_map
       |> Map.to_list()
-      |> Selector.roulette()
+      |> selector.()
 
-    word =
-      case result do
-        {:ok, word} ->
-          word
+    case result do
+      {:ok, word} ->
+        case word_map[word] do
+          nil ->
+            info = %{
+              word_map: word_map,
+              next_map: next_map,
+              words: words
+            }
 
-        {:error, :no_element} ->
-          nil
-      end
+            raise "Bug: WordMap.put/2 may have a bug: #{inspect(info)}"
 
-    case word_map[word] do
-      nil ->
-        [word | words]
+          %{next_map: next_map} ->
+            build_sentence(word_map, next_map, selector, [word | words])
+        end
 
-      count_map ->
-        build_sentence(word_map, count_map, [word | words])
+      {:error, :no_element} ->
+        # The word is terminal.
+        words
     end
   end
 
@@ -83,7 +115,14 @@ defmodule Mop8.WordMap do
   def load(filepath) do
     case File.read(Path.expand(filepath)) do
       {:ok, raw} ->
-        Poison.decode(raw)
+        with {:ok, decoded} <- Poison.decode(raw) do
+          word_map =
+            Map.new(decoded, fn {key, %{"count" => count, "next_map" => next_map}} ->
+              {key, %{count: count, next_map: next_map}}
+            end)
+
+          {:ok, word_map}
+        end
 
       {:error, _} = error ->
         error
@@ -99,16 +138,6 @@ defmodule Mop8.WordMap do
 
       {:error, _} = error ->
         error
-    end
-  end
-
-  defp count_word(count_map, word) when is_map(count_map) and is_binary(word) do
-    case count_map[word] do
-      nil ->
-        Map.put(count_map, word, 1)
-
-      count ->
-        Map.put(count_map, word, 1 + count)
     end
   end
 end
