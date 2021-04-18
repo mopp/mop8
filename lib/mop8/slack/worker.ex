@@ -1,8 +1,10 @@
 defmodule Mop8.Slack.Worker do
+  use GenServer
+
   require Logger
+
   alias Mop8.Bot
   alias Mop8.WordMap
-  use GenServer
 
   @spec start_link(any()) :: GenServer.on_start()
   def start_link(_) do

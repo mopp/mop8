@@ -1,7 +1,9 @@
 defmodule Mop8.Slack.SocketMode.Client do
-  require Logger
-  alias Mop8.Slack.Worker
   use WebSockex
+
+  require Logger
+
+  alias Mop8.Slack.Worker
 
   @slack_api_url "https://slack.com/api/apps.connections.open"
 

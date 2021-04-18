@@ -1,5 +1,6 @@
 defmodule Mop8.TokenizerTest do
   use ExUnit.Case
+
   alias Mop8.Tokenizer
 
   test "tokenize" do

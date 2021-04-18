@@ -3,10 +3,11 @@ defmodule Mop8.Application do
   # for more information on OTP Applications
   @moduledoc false
 
+  use Application
+
   require Logger
 
   alias Mop8.Slack
-  use Application
 
   @impl true
   def start(_type, _args) do
