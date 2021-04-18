@@ -47,29 +47,13 @@ defmodule Mop8.Slack.SocketMode.Client do
         {:ok, state}
 
       "events_api" ->
-        Logger.info("Event API: #{inspect(message["payload"])}")
+        payload = message["payload"]
 
-        case message["payload"] do
-          %{
-            "type" => "event_callback",
-            "event" => %{
-              "event_ts" => event_ts,
-              "text" => text,
-              "type" => "message",
-              "user" => user
-            }
-          } ->
-            Worker.send_message({user, text, event_ts})
+        Logger.info("Event API payload: #{inspect(payload)}")
 
-          _ ->
-            nil
-        end
+        Worker.handle_payload(payload)
 
-        body =
-          %{
-            envelope_id: message["envelope_id"]
-          }
-          |> Poison.encode!()
+        body = Poison.encode!(%{envelope_id: message["envelope_id"]})
 
         {:reply, {:text, body}, state}
     end
