@@ -1,4 +1,4 @@
-defmodule Mop8.BotWorker do
+defmodule Mop8.Slack.Worker do
   require Logger
   alias Mop8.Bot
   alias Mop8.WordMap

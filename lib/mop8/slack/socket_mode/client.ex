@@ -1,6 +1,6 @@
 defmodule Mop8.Slack.SocketMode.Client do
   require Logger
-  alias Mop8.BotWorker
+  alias Mop8.Slack.Worker
   use WebSockex
 
   @slack_api_url "https://slack.com/api/apps.connections.open"
@@ -59,7 +59,7 @@ defmodule Mop8.Slack.SocketMode.Client do
               "user" => user
             }
           } ->
-            BotWorker.send_message({user, text, event_ts})
+            Worker.send_message({user, text, event_ts})
 
           _ ->
             nil
