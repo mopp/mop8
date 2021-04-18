@@ -18,7 +18,7 @@ defmodule Mop8.BotTest do
     assert {:ok, {:update, _}} = Bot.handle_message(word_map, message, config)
 
     message = {"target_user_id", "<@test_bot_user_id> hi", 123}
-    assert {:ok, :ignore} == Bot.handle_message(word_map, message, config)
+    assert {:ok, {:reply, "NO DATA"}} == Bot.handle_message(word_map, message, config)
 
     word_map = WordMap.put(word_map, ["あい", "うえ"])
     message = {"target_user_id", "<@test_bot_user_id> hi", 123}

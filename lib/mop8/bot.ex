@@ -30,7 +30,7 @@ defmodule Mop8.Bot do
             {:ok, {:reply, Ngram.decode(sentence)}}
 
           {:error, :nothing_to_say} ->
-            {:ok, :ignore}
+            {:ok, {:reply, "NO DATA"}}
         end
 
       user_id == target_user_id ->
