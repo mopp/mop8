@@ -59,6 +59,7 @@ defmodule Mop8.WordMap do
     end
   end
 
+  # FIXME: Address infinite loop.
   @spec build_sentence(t(), Selector.t()) :: {:ok, Ngram.words()} | {:error, :nothing_to_say}
   def build_sentence(word_map, selector \\ &Selector.roulette/1) when is_map(word_map) do
     # Select the first word.
