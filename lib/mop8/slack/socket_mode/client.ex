@@ -17,14 +17,14 @@ defmodule Mop8.Slack.SocketMode.Client do
 
   @impl WebSockex
   def handle_connect(_conn, state) do
-    Logger.info("Connected.")
+    Logger.info("#{__MODULE__} connected.")
 
     {:ok, state}
   end
 
   @impl WebSockex
   def handle_disconnect(connection_status_map, state) do
-    Logger.info("Disconnected. #{inspect(connection_status_map)}")
+    Logger.info("#{__MODULE__} disconnected. #{inspect(connection_status_map)}")
 
     {:ok, state}
   end
@@ -40,13 +40,15 @@ defmodule Mop8.Slack.SocketMode.Client do
           raise error
       end
 
-    Logger.info("Frame received. message: #{inspect(message)}")
-
     case message["type"] do
       "hello" ->
+        Logger.info("Hello from Slack.")
+
         {:ok, state}
 
       "events_api" ->
+        Logger.info("Event API: #{inspect(message["payload"])}")
+
         case message["payload"] do
           %{
             "type" => "event_callback",

@@ -16,7 +16,7 @@ defmodule Mop8.BotWorker do
 
   @impl GenServer
   def init(_) do
-    Logger.info("Init bot.")
+    Logger.info("Init #{__MODULE__}.")
 
     state = %{
       bot_config:
@@ -35,6 +35,8 @@ defmodule Mop8.BotWorker do
   def handle_continue(_, %{filepath: filepath} = state) do
     case WordMap.load(filepath) do
       {:ok, word_map} ->
+        Logger.info("Load WordMap.")
+
         {:noreply, Map.put(state, :word_map, word_map)}
 
       {:error, reason} ->
@@ -70,6 +72,8 @@ defmodule Mop8.BotWorker do
           %{state | word_map: word_map}
 
         {:ok, :ignore} ->
+          Logger.info("Ignored")
+
           state
       end
 

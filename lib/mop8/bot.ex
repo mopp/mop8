@@ -20,6 +20,8 @@ defmodule Mop8.Bot do
       ) do
     tokens = Tokenizer.tokenize(text)
 
+    Logger.info("Tokens: #{inspect(tokens)}")
+
     cond do
       {:user_id, bot_user_id} == hd(tokens) ->
         # It's mension to the bot. Create reply.
