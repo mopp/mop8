@@ -46,7 +46,7 @@ defmodule Mop8.Slack.Worker do
 
   @impl GenServer
   def handle_cast(
-        {:message, message},
+        {:message, {user_id, text, event_ts}},
         %{
           bot_config: bot_config,
           target_channel_id: target_channel_id,
@@ -54,6 +54,11 @@ defmodule Mop8.Slack.Worker do
           word_map: word_map
         } = state
       ) do
+    {event_ts, _} = Float.parse(event_ts)
+    event_at = DateTime.from_unix!(floor(event_ts * 1_000_000), :microsecond)
+
+    message = Bot.Message.new(user_id, text, event_at)
+
     state =
       case Bot.handle_message(word_map, message, bot_config) do
         {:ok, {:reply, sentence}} ->

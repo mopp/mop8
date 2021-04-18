@@ -8,20 +8,31 @@ defmodule Mop8.BotTest do
     word_map = WordMap.new()
     config = Bot.Config.new("test_user_id", "test_bot_user_id")
 
-    message = {"other_user_id", "hi", 123}
+    message = Bot.Message.new("other_user_id", "hi", ~U[2021-04-18 23:21:27Z])
     assert {:ok, :ignore} == Bot.handle_message(word_map, message, config)
 
-    message = {"test_user_id", "hi", 123}
+    message = Bot.Message.new("test_user_id", "hi", ~U[2021-04-18 23:21:27Z])
     assert {:ok, {:update, _}} = Bot.handle_message(word_map, message, config)
 
-    message = {"test_user_id", "hi with <http://example.com/hoge>", 123}
+    message =
+      Bot.Message.new(
+        "test_user_id",
+        "hi with <http://example.com/hoge>",
+        ~U[2021-04-18 23:21:27Z]
+      )
+
     assert {:ok, {:update, _}} = Bot.handle_message(word_map, message, config)
 
-    message = {"target_user_id", "<@test_bot_user_id> hi", 123}
+    message =
+      Bot.Message.new("target_user_id", "<@test_bot_user_id> hi", ~U[2021-04-18 23:21:27Z])
+
     assert {:ok, {:reply, "NO DATA"}} == Bot.handle_message(word_map, message, config)
 
     word_map = WordMap.put(word_map, ["あい", "うえ"])
-    message = {"target_user_id", "<@test_bot_user_id> hi", 123}
+
+    message =
+      Bot.Message.new("target_user_id", "<@test_bot_user_id> hi", ~U[2021-04-18 23:21:27Z])
+
     assert {:ok, {:reply, _}} = Bot.handle_message(word_map, message, config)
   end
 end

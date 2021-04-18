@@ -1,24 +1,19 @@
 defmodule Mop8.Bot do
   require Logger
+
   alias Mop8.Ngram
   alias Mop8.Tokenizer
   alias Mop8.WordMap
   alias Mop8.Bot.Config
+  alias Mop8.Bot.Message
 
-  # TODO: Create module.
-  @type message() :: {user_id :: String.t(), text :: String.t(), event_ts :: pos_integer()}
-
-  @spec handle_message(WordMap.t(), message(), Config.t()) ::
+  @spec handle_message(WordMap.t(), Message.t(), Config.t()) ::
           {:ok, {:reply, String.t()} | {:update, WordMap.t()} | :ignore}
-  def handle_message(
-        word_map,
-        {user_id, text, _event_ts},
-        %Config{
-          target_user_id: target_user_id,
-          bot_user_id: bot_user_id
-        }
-      ) do
-    tokens = Tokenizer.tokenize(text)
+  def handle_message(word_map, message, %Config{
+        target_user_id: target_user_id,
+        bot_user_id: bot_user_id
+      }) do
+    tokens = Tokenizer.tokenize(message.text)
 
     Logger.info("Tokens: #{inspect(tokens)}")
 
@@ -33,7 +28,7 @@ defmodule Mop8.Bot do
             {:ok, {:reply, "NO DATA"}}
         end
 
-      user_id == target_user_id ->
+      message.user_id == target_user_id ->
         # Store the target user words.
         word_map =
           Enum.reduce(
