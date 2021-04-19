@@ -5,7 +5,8 @@ defmodule Mop8.Slack.Worker do
 
   alias Mop8.Bot
   alias Mop8.Message
-  alias Mop8.WordMap
+  alias Mop8.Repo
+  alias Mop8.WordMapStore
 
   @spec start_link(any()) :: GenServer.on_start()
   def start_link(_) do
@@ -28,19 +29,24 @@ defmodule Mop8.Slack.Worker do
           System.fetch_env!("BOT_USER_ID")
         ),
       target_channel_id: System.fetch_env!("TARGET_CHANNEL_ID"),
-      filepath: System.fetch_env!("MOP8_WORD_MAP_FILEPATH")
+      word_map_store: WordMapStore.new()
     }
 
     {:ok, state, {:continue, nil}}
   end
 
   @impl GenServer
-  def handle_continue(_, %{filepath: filepath} = state) do
-    case WordMap.load(filepath) do
-      {:ok, word_map} ->
+  def handle_continue(_, %{word_map_store: word_map_store} = state) do
+    case Repo.WordMap.load(word_map_store) do
+      {:ok, {word_map_store, word_map}} ->
         Logger.info("Load WordMap.")
 
-        {:noreply, Map.put(state, :word_map, word_map)}
+        state =
+          state
+          |> Map.put(:word_map_store, word_map_store)
+          |> Map.put(:word_map, word_map)
+
+        {:noreply, state}
 
       {:error, reason} ->
         {:stop, {:loading_word_map_failed, reason}, state}
@@ -53,7 +59,7 @@ defmodule Mop8.Slack.Worker do
         %{
           bot_config: bot_config,
           target_channel_id: target_channel_id,
-          filepath: filepath,
+          word_map_store: word_map_store,
           word_map: word_map
         } = state
       ) do
@@ -85,9 +91,9 @@ defmodule Mop8.Slack.Worker do
             {:ok, {:update, word_map}} ->
               Logger.info("WordMap updated: #{inspect(word_map)}")
 
-              :ok = WordMap.store(filepath, word_map)
+              {:ok, word_map_store} = Repo.WordMap.store(word_map_store, word_map)
 
-              %{state | word_map: word_map}
+              %{state | word_map: word_map, word_map_store: word_map_store}
 
             {:ok, :ignore} ->
               Logger.info("Ignored")

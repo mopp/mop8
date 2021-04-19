@@ -124,32 +124,4 @@ defmodule Mop8.WordMapTest do
       assert {:error, :nothing_to_say} == WordMap.build_sentence(WordMap.new())
     end
   end
-
-  describe "load/1 and store/2" do
-    setup do
-      source_sentences = [
-        "今日はいい天気でしたね。",
-        "明日はいい天気でしたね。",
-        "昨日はいい天気でしたよ。"
-      ]
-
-      word_map =
-        source_sentences
-        |> Enum.map(&Ngram.encode/1)
-        |> Enum.reduce(WordMap.new(), &WordMap.put(&2, &1))
-
-      {:ok, %{word_map: word_map}}
-    end
-
-    @tag :tmp_dir
-    test "writes the WordMap into the file and reads the WordMap from the given file", %{
-      tmp_dir: tmp_dir,
-      word_map: word_map
-    } do
-      filepath = "#{tmp_dir}/mop8.json"
-
-      assert :ok == WordMap.store(filepath, word_map)
-      assert {:ok, word_map} == WordMap.load(filepath)
-    end
-  end
 end

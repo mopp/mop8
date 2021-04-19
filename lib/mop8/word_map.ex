@@ -110,35 +110,4 @@ defmodule Mop8.WordMap do
         words
     end
   end
-
-  # TODO: Separate it to infrastructure layer.
-  @spec load(Path.t()) :: {:ok, t()} | {:error, reason :: any()}
-  def load(filepath) do
-    case File.read(Path.expand(filepath)) do
-      {:ok, raw} ->
-        with {:ok, decoded} <- Poison.decode(raw) do
-          word_map =
-            Map.new(decoded, fn {key, %{"count" => count, "next_map" => next_map}} ->
-              {key, %{count: count, next_map: next_map}}
-            end)
-
-          {:ok, word_map}
-        end
-
-      {:error, _} = error ->
-        error
-    end
-  end
-
-  # TODO: Separate it to infrastructure layer.
-  @spec store(Path.t(), t()) :: :ok | {:error, reason :: any()}
-  def store(filepath, word_map) do
-    case Poison.encode(word_map) do
-      {:ok, raw} ->
-        File.write(Path.expand(filepath), raw)
-
-      {:error, _} = error ->
-        error
-    end
-  end
 end
