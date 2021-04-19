@@ -7,6 +7,7 @@ defmodule Mop8.Slack.Worker do
   alias Mop8.Message
   alias Mop8.Repo
   alias Mop8.WordMapStore
+  alias Mop8.MessageStore
 
   @spec start_link(any()) :: GenServer.on_start()
   def start_link(_) do
@@ -29,27 +30,30 @@ defmodule Mop8.Slack.Worker do
           System.fetch_env!("BOT_USER_ID")
         ),
       target_channel_id: System.fetch_env!("TARGET_CHANNEL_ID"),
-      word_map_store: WordMapStore.new()
+      # FIXME: Inject them and write test.
+      word_map_store: WordMapStore.new(),
+      message_store: MessageStore.new()
     }
 
     {:ok, state, {:continue, nil}}
   end
 
   @impl GenServer
-  def handle_continue(_, %{word_map_store: word_map_store} = state) do
-    case Repo.WordMap.load(word_map_store) do
-      {:ok, {word_map_store, word_map}} ->
-        Logger.info("Load WordMap.")
+  def handle_continue(_, %{word_map_store: word_map_store, message_store: message_store} = state) do
+    with {:ok, {word_map_store, word_map}} <- Repo.WordMap.load(word_map_store),
+         {:ok, {message_store, _messages}} <- Repo.Message.all(message_store) do
+      Logger.info("WordMap and Message are loaded.")
 
-        state =
-          state
-          |> Map.put(:word_map_store, word_map_store)
-          |> Map.put(:word_map, word_map)
+      state =
+        state
+        |> Map.put(:word_map, word_map)
+        |> Map.put(:word_map_store, word_map_store)
+        |> Map.put(:message_store, message_store)
 
-        {:noreply, state}
-
+      {:noreply, state}
+    else
       {:error, reason} ->
-        {:stop, {:loading_word_map_failed, reason}, state}
+        {:stop, {"Loading data failed.", reason}}
     end
   end
 
@@ -59,8 +63,9 @@ defmodule Mop8.Slack.Worker do
         %{
           bot_config: bot_config,
           target_channel_id: target_channel_id,
+          word_map: word_map,
           word_map_store: word_map_store,
-          word_map: word_map
+          message_store: message_store
         } = state
       ) do
     state =
@@ -78,28 +83,32 @@ defmodule Mop8.Slack.Worker do
           event_at = DateTime.from_unix!(floor(event_ts * 1_000_000), :microsecond)
 
           message = Message.new(user_id, text, event_at)
+          {:ok, message_store} = Repo.Message.insert(message_store, message)
 
-          case Bot.handle_message(word_map, message, bot_config) do
-            {:ok, {:reply, sentence}} ->
-              Logger.info("Reply: #{sentence}")
+          state =
+            case Bot.handle_message(word_map, message, bot_config) do
+              {:ok, {:reply, sentence}} ->
+                Logger.info("Reply: #{sentence}")
 
-              response = Slack.Web.Chat.post_message(target_channel_id, sentence)
-              Logger.info("Response: #{inspect(response)}")
+                response = Slack.Web.Chat.post_message(target_channel_id, sentence)
+                Logger.info("Response: #{inspect(response)}")
 
-              state
+                state
 
-            {:ok, {:update, word_map}} ->
-              Logger.info("WordMap updated: #{inspect(word_map)}")
+              {:ok, {:update, word_map}} ->
+                Logger.info("WordMap updated: #{inspect(word_map)}")
 
-              {:ok, word_map_store} = Repo.WordMap.store(word_map_store, word_map)
+                {:ok, word_map_store} = Repo.WordMap.store(word_map_store, word_map)
 
-              %{state | word_map: word_map, word_map_store: word_map_store}
+                %{state | word_map: word_map, word_map_store: word_map_store}
 
-            {:ok, :ignore} ->
-              Logger.info("Ignored")
+              {:ok, :ignore} ->
+                Logger.info("Ignored")
 
-              state
-          end
+                state
+            end
+
+          %{state | message_store: message_store}
 
         _ ->
           state
