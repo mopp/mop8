@@ -4,6 +4,7 @@ defmodule Mop8.Slack.Worker do
   require Logger
 
   alias Mop8.Bot
+  alias Mop8.Message
   alias Mop8.WordMap
 
   @spec start_link(any()) :: GenServer.on_start()
@@ -70,7 +71,7 @@ defmodule Mop8.Slack.Worker do
           {event_ts, _} = Float.parse(event_ts)
           event_at = DateTime.from_unix!(floor(event_ts * 1_000_000), :microsecond)
 
-          message = Bot.Message.new(user_id, text, event_at)
+          message = Message.new(user_id, text, event_at)
 
           case Bot.handle_message(word_map, message, bot_config) do
             {:ok, {:reply, sentence}} ->

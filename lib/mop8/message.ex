@@ -1,5 +1,5 @@
-defmodule Mop8.Bot.Message do
-  alias Mop8.Bot.Error.InvalidMessageError
+defmodule Mop8.Message do
+  alias Mop8.Error.InvalidMessageError
 
   @enforce_keys [
     :user_id,
