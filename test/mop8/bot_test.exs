@@ -34,4 +34,21 @@ defmodule Mop8.BotTest do
 
     assert {:ok, {:reply, _}} = Bot.handle_message(word_map, message, config)
   end
+
+  test "rebuild_word_map/2" do
+    config = Bot.Config.new("test_user_id", "test_bot_user_id")
+
+    messages = [
+      Message.new("test_user_id", "hi", ~U[2021-04-18 23:21:27Z]),
+      Message.new("user_id", "hi", ~U[2021-04-19 00:11:00Z]),
+      Message.new("user_id", "<@test_bot_user_id> hi", ~U[2021-04-19 00:11:00Z]),
+      Message.new("test_user_id", "hi", ~U[2021-04-19 00:11:00Z]),
+      Message.new("test_user_id", "yo", ~U[2021-04-19 00:13:00Z])
+    ]
+
+    assert %{
+             "hi" => %{count: 2, next_map: %{}},
+             "yo" => %{count: 1, next_map: %{}}
+           } == Bot.rebuild_word_map(messages, config)
+  end
 end
