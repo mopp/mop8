@@ -5,7 +5,7 @@ defmodule Mop8.BotTest do
   alias Mop8.Bot
   alias Mop8.Message
 
-  test 'handle_message/3' do
+  test "handle_message/3" do
     word_map = WordMap.new()
     config = Bot.Config.new("test_user_id", "test_bot_user_id")
 

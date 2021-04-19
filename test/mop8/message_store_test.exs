@@ -6,7 +6,7 @@ defmodule Mop8.MessageStoreTest do
   alias Mop8.Repo
 
   @tag :tmp_dir
-  test 'insert/2 and all/1 stores the given message and loads the all messages', %{
+  test "insert/2 and all/1 stores the given message and loads the all messages", %{
     tmp_dir: tmp_dir
   } do
     System.put_env("MOP8_STORAGE_DIR", tmp_dir)
