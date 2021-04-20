@@ -3,6 +3,7 @@ defmodule Mop8.Operation do
 
   alias Mop8.Bot
   alias Mop8.Message
+  alias Mop8.MessageStore
   alias Mop8.Repo
   alias Mop8.WordMapStore
 
@@ -24,10 +25,26 @@ defmodule Mop8.Operation do
 
       word_map = Bot.rebuild_word_map(messages, config)
 
-    # TODO: Create Repo.WordMap.delete
+      # TODO: Create Repo.WordMap.delete
       WordMapStore.new()
       |> Repo.WordMap.store(word_map)
     end
+  end
+
+  def rebuild_word_map_by_all_messages do
+    {:ok, {_, messages}} = Repo.Message.all(MessageStore.new())
+
+    config =
+      Bot.Config.new(
+        System.fetch_env!("TARGET_USER_ID"),
+        System.fetch_env!("BOT_USER_ID")
+      )
+
+    word_map = Bot.rebuild_word_map(messages, config)
+
+    # TODO: Create Repo.WordMap.delete
+    WordMapStore.new()
+    |> Repo.WordMap.store(word_map)
   end
 
   defp fetch_messages(oldest, latest) do
