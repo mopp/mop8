@@ -83,32 +83,34 @@ defmodule Mop8.Slack.Worker do
           event_at = DateTime.from_unix!(floor(event_ts * 1_000_000), :microsecond)
 
           message = Message.new(user_id, text, event_at)
-          {:ok, message_store} = Repo.Message.insert(message_store, message)
 
-          state =
-            case Bot.handle_message(word_map, message, bot_config) do
-              {:ok, {:reply, sentence}} ->
-                Logger.info("Reply: #{sentence}")
+          case Bot.handle_message(word_map, message, bot_config) do
+            {:ok, {:reply, sentence}} ->
+              Logger.info("Reply: #{sentence}")
 
-                response = Slack.Web.Chat.post_message(target_channel_id, sentence)
-                Logger.info("Response: #{inspect(response)}")
+              response = Slack.Web.Chat.post_message(target_channel_id, sentence)
+              Logger.info("Response: #{inspect(response)}")
 
+              state
+
+            {:ok, {:update, word_map}} ->
+              Logger.info("WordMap updated: #{inspect(word_map)}")
+
+              {:ok, message_store} = Repo.Message.insert(message_store, message)
+              {:ok, word_map_store} = Repo.WordMap.store(word_map_store, word_map)
+
+              %{
                 state
+                | word_map: word_map,
+                  word_map_store: word_map_store,
+                  message_store: message_store
+              }
 
-              {:ok, {:update, word_map}} ->
-                Logger.info("WordMap updated: #{inspect(word_map)}")
+            {:ok, :ignore} ->
+              Logger.info("Ignored")
 
-                {:ok, word_map_store} = Repo.WordMap.store(word_map_store, word_map)
-
-                %{state | word_map: word_map, word_map_store: word_map_store}
-
-              {:ok, :ignore} ->
-                Logger.info("Ignored")
-
-                state
-            end
-
-          %{state | message_store: message_store}
+              state
+          end
 
         _ ->
           state
