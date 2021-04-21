@@ -1,5 +1,5 @@
 defmodule Mop8.MessageStore do
-  alias Mop8.Message
+  alias Mop8.Bot.Message
 
   @enforce_keys [:filepath, :messages]
 
@@ -25,7 +25,7 @@ end
 
 defimpl Mop8.Repo.Message, for: Mop8.MessageStore do
   alias Mop8.Repo
-  alias Mop8.Message
+  alias Mop8.Bot.Message
   alias Mop8.MessageStore
 
   @spec all(Repo.Message.t()) ::

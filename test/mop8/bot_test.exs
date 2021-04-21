@@ -3,7 +3,7 @@ defmodule Mop8.BotTest do
 
   alias Mop8.WordMap
   alias Mop8.Bot
-  alias Mop8.Message
+  alias Mop8.Bot.Message
 
   test "handle_message/3" do
     word_map = WordMap.new()

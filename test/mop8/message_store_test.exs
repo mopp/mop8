@@ -1,7 +1,7 @@
 defmodule Mop8.MessageStoreTest do
   use ExUnit.Case
 
-  alias Mop8.Message
+  alias Mop8.Bot.Message
   alias Mop8.MessageStore
   alias Mop8.Repo
 

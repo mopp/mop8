@@ -4,7 +4,7 @@ defmodule Mop8.Slack.Worker do
   require Logger
 
   alias Mop8.Bot
-  alias Mop8.Message
+  alias Mop8.Bot.Message
   alias Mop8.Repo
   alias Mop8.WordMapStore
   alias Mop8.MessageStore

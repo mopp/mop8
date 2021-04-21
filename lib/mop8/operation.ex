@@ -2,7 +2,7 @@ defmodule Mop8.Operation do
   require Logger
 
   alias Mop8.Bot
-  alias Mop8.Message
+  alias Mop8.Bot.Message
   alias Mop8.MessageStore
   alias Mop8.Repo
   alias Mop8.WordMapStore
