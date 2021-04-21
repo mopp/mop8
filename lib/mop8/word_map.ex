@@ -1,8 +1,8 @@
 defmodule Mop8.WordMap do
   require Logger
 
-  alias Mop8.Ngram
-  alias Mop8.Selector
+  alias Mop8.Bot.Ngram
+  alias Mop8.Bot.Selector
 
   @opaque t() :: %{
             (count_map :: String.t()) => %{

@@ -1,7 +1,7 @@
-defmodule Mop8.NgramTest do
+defmodule Mop8.Bot.NgramTest do
   use ExUnit.Case, async: true
 
-  alias Mop8.Ngram
+  alias Mop8.Bot.Ngram
 
   test "encode/1 divides the given string to N-gram (default N = 2)" do
     assert [] == Ngram.encode("")

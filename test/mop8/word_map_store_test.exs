@@ -2,7 +2,7 @@ defmodule Mop8.WordMapStoreTest do
   use ExUnit.Case
 
   alias Mop8.Bot.Repo
-  alias Mop8.Ngram
+  alias Mop8.Bot.Ngram
   alias Mop8.WordMap
   alias Mop8.WordMapStore
 

@@ -1,7 +1,7 @@
 defmodule Mop8.WordMapTest do
   use ExUnit.Case, async: true
 
-  alias Mop8.Ngram
+  alias Mop8.Bot.Ngram
   alias Mop8.WordMap
 
   test "new/0 creates empty WordMap" do

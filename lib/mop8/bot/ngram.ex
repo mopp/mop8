@@ -1,4 +1,4 @@
-defmodule Mop8.Ngram do
+defmodule Mop8.Bot.Ngram do
   @type words() :: [String.t()]
 
   @spec encode(String.t(), pos_integer()) :: words()

@@ -3,7 +3,7 @@ defmodule Mop8.Bot do
 
   alias Mop8.Bot.Config
   alias Mop8.Bot.Message
-  alias Mop8.Ngram
+  alias Mop8.Bot.Ngram
   alias Mop8.Tokenizer
   alias Mop8.WordMap
 
