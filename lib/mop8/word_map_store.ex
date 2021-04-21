@@ -1,5 +1,5 @@
 defmodule Mop8.WordMapStore do
-  alias Mop8.WordMap
+  alias Mop8.Bot.WordMap
 
   @enforce_keys [:filepath]
 
@@ -23,7 +23,7 @@ end
 
 defimpl Mop8.Bot.Repo.WordMap, for: Mop8.WordMapStore do
   alias Mop8.Bot.Repo
-  alias Mop8.WordMap
+  alias Mop8.Bot.WordMap
   alias Mop8.WordMapStore
 
   @spec load(Repo.WordMap.t()) ::

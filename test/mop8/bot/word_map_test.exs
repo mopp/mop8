@@ -1,8 +1,8 @@
-defmodule Mop8.WordMapTest do
+defmodule Mop8.Bot.WordMapTest do
   use ExUnit.Case, async: true
 
   alias Mop8.Bot.Ngram
-  alias Mop8.WordMap
+  alias Mop8.Bot.WordMap
 
   test "new/0 creates empty WordMap" do
     assert %{} == WordMap.new()

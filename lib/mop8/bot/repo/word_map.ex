@@ -1,5 +1,5 @@
 defprotocol Mop8.Bot.Repo.WordMap do
-  alias Mop8.WordMap
+  alias Mop8.Bot.WordMap
 
   @spec load(t) :: {:ok, {t, WordMap.t()}} | {:error, reason :: any()}
   def load(self)

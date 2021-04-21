@@ -1,9 +1,9 @@
 defmodule Mop8.BotTest do
   use ExUnit.Case, async: true
 
-  alias Mop8.WordMap
   alias Mop8.Bot
   alias Mop8.Bot.Message
+  alias Mop8.Bot.WordMap
 
   test "handle_message/3" do
     word_map = WordMap.new()

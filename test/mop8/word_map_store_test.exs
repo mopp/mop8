@@ -1,9 +1,9 @@
 defmodule Mop8.WordMapStoreTest do
   use ExUnit.Case
 
-  alias Mop8.Bot.Repo
   alias Mop8.Bot.Ngram
-  alias Mop8.WordMap
+  alias Mop8.Bot.Repo
+  alias Mop8.Bot.WordMap
   alias Mop8.WordMapStore
 
   describe "load/1 and store/2" do

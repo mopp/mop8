@@ -1,4 +1,4 @@
-defmodule Mop8.WordMap do
+defmodule Mop8.Bot.WordMap do
   require Logger
 
   alias Mop8.Bot.Ngram

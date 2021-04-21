@@ -4,8 +4,8 @@ defmodule Mop8.Bot do
   alias Mop8.Bot.Config
   alias Mop8.Bot.Message
   alias Mop8.Bot.Ngram
+  alias Mop8.Bot.WordMap
   alias Mop8.Tokenizer
-  alias Mop8.WordMap
 
   @spec handle_message(WordMap.t(), Message.t(), Config.t()) ::
           {:ok, {:reply, String.t()} | {:update, WordMap.t()} | :ignore}
