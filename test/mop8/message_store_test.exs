@@ -2,8 +2,8 @@ defmodule Mop8.MessageStoreTest do
   use ExUnit.Case
 
   alias Mop8.Bot.Message
+  alias Mop8.Bot.Repo
   alias Mop8.MessageStore
-  alias Mop8.Repo
 
   @tag :tmp_dir
   test "insert/2 and all/1 stores the given message and loads the all messages", %{

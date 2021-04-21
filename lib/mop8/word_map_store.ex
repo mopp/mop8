@@ -21,8 +21,8 @@ defmodule Mop8.WordMapStore do
   end
 end
 
-defimpl Mop8.Repo.WordMap, for: Mop8.WordMapStore do
-  alias Mop8.Repo
+defimpl Mop8.Bot.Repo.WordMap, for: Mop8.WordMapStore do
+  alias Mop8.Bot.Repo
   alias Mop8.WordMap
   alias Mop8.WordMapStore
 

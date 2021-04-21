@@ -23,8 +23,8 @@ defmodule Mop8.MessageStore do
   end
 end
 
-defimpl Mop8.Repo.Message, for: Mop8.MessageStore do
-  alias Mop8.Repo
+defimpl Mop8.Bot.Repo.Message, for: Mop8.MessageStore do
+  alias Mop8.Bot.Repo
   alias Mop8.Bot.Message
   alias Mop8.MessageStore
 

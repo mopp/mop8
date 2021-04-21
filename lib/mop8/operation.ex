@@ -4,7 +4,7 @@ defmodule Mop8.Operation do
   alias Mop8.Bot
   alias Mop8.Bot.Message
   alias Mop8.MessageStore
-  alias Mop8.Repo
+  alias Mop8.Bot.Repo
   alias Mop8.WordMapStore
 
   def fetch_and_rebuild(oldest, latest) when is_binary(oldest) and is_binary(latest) do

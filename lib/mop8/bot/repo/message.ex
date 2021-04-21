@@ -1,4 +1,4 @@
-defprotocol Mop8.Repo.Message do
+defprotocol Mop8.Bot.Repo.Message do
   alias Mop8.Bot.Message
 
   @spec all(t) :: {:ok, {t, [Message.t()]}} | {:error, reason :: any()}

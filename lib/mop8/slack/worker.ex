@@ -5,7 +5,7 @@ defmodule Mop8.Slack.Worker do
 
   alias Mop8.Bot
   alias Mop8.Bot.Message
-  alias Mop8.Repo
+  alias Mop8.Bot.Repo
   alias Mop8.WordMapStore
   alias Mop8.MessageStore
 
