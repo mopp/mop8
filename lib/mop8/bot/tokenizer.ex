@@ -1,6 +1,7 @@
-defmodule Mop8.Tokenizer do
+defmodule Mop8.Bot.Tokenizer do
   @type token() :: {:user_id, String.t()} | {:text, String.t()}
 
+  # TODO: Use Message.t()
   @spec tokenize(String.t()) :: [token()]
   def tokenize(text) do
     text

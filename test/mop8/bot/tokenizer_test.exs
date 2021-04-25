@@ -1,7 +1,7 @@
-defmodule Mop8.TokenizerTest do
+defmodule Mop8.Bot.TokenizerTest do
   use ExUnit.Case
 
-  alias Mop8.Tokenizer
+  alias Mop8.Bot.Tokenizer
 
   test "tokenize" do
     assert(
