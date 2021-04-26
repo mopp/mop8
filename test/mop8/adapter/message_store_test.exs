@@ -9,8 +9,12 @@ defmodule Mop8.Adapter.MessageStoreTest do
   test "insert/2 and all/1 stores the given message and loads the all messages", %{
     tmp_dir: tmp_dir
   } do
-    System.put_env("MOP8_STORAGE_DIR", tmp_dir)
-    store = MessageStore.new()
+    store =
+      MessageStore.new(
+        [tmp_dir, "message.json"]
+        |> Path.join()
+        |> Path.expand()
+      )
 
     message1 = Message.new("test_user_id", "hi", ~U[2021-04-19 22:12:00Z])
     assert {:ok, store} = Repo.Message.insert(store, message1)

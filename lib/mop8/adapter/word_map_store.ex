@@ -9,12 +9,8 @@ defmodule Mop8.Adapter.WordMapStore do
             filepath: Path.t()
           }
 
-  def new() do
-    filepath =
-      [System.fetch_env!("MOP8_STORAGE_DIR"), "word_map.json"]
-      |> Path.join()
-      |> Path.expand()
-
+  @spec new(Path.t()) :: t()
+  def new(filepath) do
     %__MODULE__{
       filepath: filepath
     }

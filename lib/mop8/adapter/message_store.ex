@@ -10,12 +10,8 @@ defmodule Mop8.Adapter.MessageStore do
             messages: [Message.t()]
           }
 
-  def new() do
-    filepath =
-      [System.fetch_env!("MOP8_STORAGE_DIR"), "messages.json"]
-      |> Path.join()
-      |> Path.expand()
-
+  @spec new(Path.t()) :: t()
+  def new(filepath) do
     %__MODULE__{
       filepath: filepath,
       messages: []

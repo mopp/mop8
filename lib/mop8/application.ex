@@ -19,14 +19,24 @@ defmodule Mop8.Application do
 
     Application.put_env(:slack, :api_token, System.fetch_env!("SLACK_BOT_USER_OAUTH_TOKEN"))
 
+    storage_dir = System.fetch_env!("MOP8_STORAGE_DIR")
+
     processor =
       Bot.Processor.new(
         Bot.Config.new(
           System.fetch_env!("TARGET_USER_ID"),
           System.fetch_env!("BOT_USER_ID")
         ),
-        WordMapStore.new(),
-        MessageStore.new()
+        WordMapStore.new(
+          [storage_dir, "word_map.json"]
+          |> Path.join()
+          |> Path.expand()
+        ),
+        MessageStore.new(
+          [storage_dir, "messages.json"]
+          |> Path.join()
+          |> Path.expand()
+        )
       )
 
     children = [

@@ -27,9 +27,13 @@ defmodule Mop8.Adapter.WordMapStoreTest do
       tmp_dir: tmp_dir,
       word_map: word_map
     } do
-      System.put_env("MOP8_STORAGE_DIR", tmp_dir)
+      store =
+        WordMapStore.new(
+          [tmp_dir, "word_map.json"]
+          |> Path.join()
+          |> Path.expand()
+        )
 
-      store = WordMapStore.new()
       assert {:ok, store} == Repo.WordMap.store(store, word_map)
       assert {:ok, {store, word_map}} == Repo.WordMap.load(store)
     end
