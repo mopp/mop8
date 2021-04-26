@@ -1,4 +1,4 @@
-defmodule Mop8.WordMapStore do
+defmodule Mop8.Adapter.WordMapStore do
   alias Mop8.Bot.WordMap
 
   @enforce_keys [:filepath]
@@ -21,10 +21,10 @@ defmodule Mop8.WordMapStore do
   end
 end
 
-defimpl Mop8.Bot.Repo.WordMap, for: Mop8.WordMapStore do
+defimpl Mop8.Bot.Repo.WordMap, for: Mop8.Adapter.WordMapStore do
+  alias Mop8.Adapter.WordMapStore
   alias Mop8.Bot.Repo
   alias Mop8.Bot.WordMap
-  alias Mop8.WordMapStore
 
   @spec load(Repo.WordMap.t()) ::
           {:ok, {Repo.WordMap.t(), WordMap.t()}} | {:error, reason :: any()}

@@ -1,9 +1,9 @@
-defmodule Mop8.Slack.SocketMode.Client do
+defmodule Mop8.Adapter.Slack.SocketMode.Client do
   use WebSockex
 
   require Logger
 
-  alias Mop8.Slack.Worker
+  alias Mop8.Adapter.MessageController
 
   @slack_api_url "https://slack.com/api/apps.connections.open"
 
@@ -53,7 +53,7 @@ defmodule Mop8.Slack.SocketMode.Client do
 
         Logger.info("Event API payload: #{inspect(payload)}")
 
-        Worker.handle_payload(payload)
+        MessageController.handle_payload(payload)
 
         body = Poison.encode!(%{envelope_id: message["envelope_id"]})
 
