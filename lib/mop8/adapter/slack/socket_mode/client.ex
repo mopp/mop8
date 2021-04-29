@@ -9,12 +9,7 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
 
   @spec start_link(String.t()) :: {:ok, pid()} | {:error, term()}
   def start_link(app_level_token) when is_binary(app_level_token) do
-    with {:ok, websocket_url} <- fetch_url(app_level_token) do
-      WebSockex.start_link(websocket_url, __MODULE__, nil)
-    else
-      {:error, reason} ->
-        {:error, {:fetch_endpoint, reason}}
-    end
+    WebSockex.start_link(fetch_url(app_level_token), __MODULE__, nil)
   end
 
   @impl WebSockex
@@ -83,25 +78,22 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
   end
 
   defp fetch_url(app_level_token) do
+    {:ok, _} = HTTPoison.start()
+
     headers = [
       {"Content-Type", "application/x-www-form-urlencoded"},
       {"Authorization", "Bearer #{app_level_token}"}
     ]
 
-    with {:ok, _} <- HTTPoison.start(),
-         {:ok, response} <- HTTPoison.post(@slack_api_url, "", headers),
-         200 <- response.status_code,
-         {:ok, slack_response} <- Poison.decode(response.body) do
-      case slack_response do
-        %{"ok" => true, "url" => websocket_url} ->
-          {:ok, websocket_url}
+    {:ok, response} = HTTPoison.post(@slack_api_url, "", headers)
 
-        %{"ok" => false, "error" => reason} ->
-          {:error, reason}
-      end
-    else
-      error ->
-        error
+    if response.status_code != 200 do
+      raise "request failed to fetch WebSocket URL. response: #{inspect(response)}"
     end
+
+    {:ok, body} = Poison.decode(response.body)
+    %{"ok" => true, "url" => websocket_url} = body
+
+    websocket_url
   end
 end
