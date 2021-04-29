@@ -56,11 +56,8 @@ defmodule Mop8.Bot.Processor do
 
         Logger.info("Reply: #{sentence}")
 
-        # TODO: fetch target channel from the message.
-        target_channel_id = System.fetch_env!("TARGET_CHANNEL_ID")
-
         # TODO: Define interface and separate the implementation.
-        response = Slack.Web.Chat.post_message(target_channel_id, sentence)
+        response = Slack.Web.Chat.post_message(message.channel_id, sentence)
         Logger.info("Response: #{inspect(response)}")
 
         %{processor | word_map_store: word_map_store}

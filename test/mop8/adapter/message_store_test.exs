@@ -16,10 +16,10 @@ defmodule Mop8.Adapter.MessageStoreTest do
         |> Path.expand()
       )
 
-    message1 = Message.new("test_user_id", "hi", ~U[2021-04-19 22:12:00Z])
+    message1 = Message.new("test_user_id", "hi", ~U[2021-04-19 22:12:00Z], "test_channel_id")
     assert {:ok, store} = Repo.Message.insert(store, message1)
 
-    message2 = Message.new("test_user_id", "yo", ~U[2021-04-19 23:00:00Z])
+    message2 = Message.new("test_user_id", "yo", ~U[2021-04-19 23:00:00Z], "test_channel_id")
     assert {:ok, store} = Repo.Message.insert(store, message2)
 
     messages = [message2, message1]

@@ -78,7 +78,7 @@ defmodule Mop8.Maintainer do
 
             {message_ts, _} = Float.parse(message_ts)
             message_at = DateTime.from_unix!(floor(message_ts * 1_000_000), :microsecond)
-            message = Message.new(user_id, text, message_at)
+            message = Message.new(user_id, text, message_at, target_channel_id)
 
             {:ok, message_store} = Repo.Message.insert(message_store, message)
 

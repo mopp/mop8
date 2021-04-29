@@ -35,16 +35,17 @@ defmodule Mop8.Adapter.MessageController do
       %{
         "type" => "event_callback",
         "event" => %{
-          "event_ts" => event_ts,
-          "text" => text,
           "type" => "message",
-          "user" => user_id
+          "user" => user_id,
+          "text" => text,
+          "channel" => channel_id,
+          "event_ts" => event_ts
         }
       } ->
         {event_ts, _} = Float.parse(event_ts)
         event_at = DateTime.from_unix!(floor(event_ts * 1_000_000), :microsecond)
 
-        message = Message.new(user_id, text, event_at)
+        message = Message.new(user_id, text, event_at, channel_id)
 
         Processor.process_message(processor, message)
 
