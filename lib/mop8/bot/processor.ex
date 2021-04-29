@@ -74,14 +74,7 @@ defmodule Mop8.Bot.Processor do
 
         {:ok, {word_map_store, word_map}} = Repo.WordMap.load(word_map_store)
 
-        Enum.reduce(tokens, word_map, fn
-          {:text, text}, acc ->
-            words = Ngram.encode(text)
-            WordMap.put(acc, words)
-
-          _, acc ->
-            acc
-        end)
+        word_map = put_message(message, word_map)
 
         {:ok, word_map_store} = Repo.WordMap.store(word_map_store, word_map)
 
@@ -92,5 +85,19 @@ defmodule Mop8.Bot.Processor do
 
         processor
     end
+  end
+
+  @spec put_message(Message.t(), WordMap.t()) :: WordMap.t()
+  def put_message(message, word_map) do
+    tokens = Tokenizer.tokenize(message.text)
+
+    Enum.reduce(tokens, word_map, fn
+      {:text, text}, acc ->
+        words = Ngram.encode(text)
+        WordMap.put(acc, words)
+
+      _, acc ->
+        acc
+    end)
   end
 end

@@ -4,9 +4,8 @@ defmodule Mop8.Maintainer do
   require Logger
 
   alias Mop8.Bot.Message
-  alias Mop8.Bot.Ngram
+  alias Mop8.Bot.Processor
   alias Mop8.Bot.Repo
-  alias Mop8.Bot.Tokenizer
   alias Mop8.Bot.WordMap
 
   @spec start_link({String.t(), String.t(), Repo.Message.t(), Repo.WordMap.t()}) ::
@@ -101,25 +100,10 @@ defmodule Mop8.Maintainer do
     } = state
 
     reply =
-      with {:ok, {_, messages}} <- Repo.Message.all(message_store) do
-        word_map =
-          Enum.reduce(messages, WordMap.new(), fn
-            message, word_map ->
-              tokens = Tokenizer.tokenize(message.text)
-
-              Enum.reduce(tokens, word_map, fn
-                {:text, text}, acc ->
-                  words = Ngram.encode(text)
-                  WordMap.put(acc, words)
-
-                _, acc ->
-                  acc
-              end)
-          end)
-
-        with {:ok, _} <- Repo.WordMap.store(word_map_store, word_map) do
-          :ok
-        end
+      with {:ok, {_, messages}} <- Repo.Message.all(message_store),
+           word_map <- Enum.reduce(messages, WordMap.new(), &Processor.put_message/2),
+           {:ok, _} <- Repo.WordMap.store(word_map_store, word_map) do
+        :ok
       end
 
     {:reply, reply, state}
