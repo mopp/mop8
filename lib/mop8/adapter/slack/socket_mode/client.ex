@@ -64,13 +64,6 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
   end
 
   @impl WebSockex
-  def handle_info(msg, state) do
-    Logger.info("handle_info: #{inspect(msg)}")
-
-    {:ok, state}
-  end
-
-  @impl WebSockex
   def terminate(reason, _state) do
     Logger.info("terminate. reason: #{inspect(reason)}")
 
