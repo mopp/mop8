@@ -7,9 +7,9 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
 
   @slack_api_url "https://slack.com/api/apps.connections.open"
 
-  @spec start_link(any()) :: {:ok, pid()} | {:error, term()}
-  def start_link(_) do
-    with {:ok, websocket_url} <- fetch_url() do
+  @spec start_link(String.t()) :: {:ok, pid()} | {:error, term()}
+  def start_link(app_level_token) when is_binary(app_level_token) do
+    with {:ok, websocket_url} <- fetch_url(app_level_token) do
       WebSockex.start_link(websocket_url, __MODULE__, nil)
     else
       {:error, reason} ->
@@ -82,15 +82,14 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
     :ok
   end
 
-  defp fetch_url do
-    {:ok, _} = HTTPoison.start()
-
+  defp fetch_url(app_level_token) do
     headers = [
       {"Content-Type", "application/x-www-form-urlencoded"},
-      {"Authorization", "Bearer #{System.fetch_env!("SLACK_APP_LEVEL_TOKEN")}"}
+      {"Authorization", "Bearer #{app_level_token}"}
     ]
 
-    with {:ok, response} <- HTTPoison.post(@slack_api_url, "", headers),
+    with {:ok, _} <- HTTPoison.start(),
+         {:ok, response} <- HTTPoison.post(@slack_api_url, "", headers),
          200 <- response.status_code,
          {:ok, slack_response} <- Poison.decode(response.body) do
       case slack_response do

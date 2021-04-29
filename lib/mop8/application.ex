@@ -51,7 +51,7 @@ defmodule Mop8.Application do
       )
 
     children = [
-      {Slack.SocketMode.Client, nil},
+      {Slack.SocketMode.Client, System.fetch_env!("SLACK_APP_LEVEL_TOKEN")},
       {MessageController, processor},
       {Maintainer, {target_user_id, target_channel_id, message_store, word_map_store}}
     ]
