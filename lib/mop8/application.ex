@@ -12,6 +12,7 @@ defmodule Mop8.Application do
   alias Mop8.Adapter.Slack
   alias Mop8.Adapter.WordMapStore
   alias Mop8.Bot
+  alias Mop8.Maintainer
 
   @impl true
   def start(_type, _args) do
@@ -21,27 +22,38 @@ defmodule Mop8.Application do
 
     storage_dir = System.fetch_env!("MOP8_STORAGE_DIR")
 
+    target_user_id = System.fetch_env!("TARGET_USER_ID")
+    target_channel_id = System.fetch_env!("TARGET_CHANNEL_ID")
+
+    # TODO: Add exlusive control.
+    message_store =
+      MessageStore.new(
+        [storage_dir, "messages.json"]
+        |> Path.join()
+        |> Path.expand()
+      )
+
+    word_map_store =
+      WordMapStore.new(
+        [storage_dir, "word_map.json"]
+        |> Path.join()
+        |> Path.expand()
+      )
+
     processor =
       Bot.Processor.new(
         Bot.Config.new(
-          System.fetch_env!("TARGET_USER_ID"),
+          target_user_id,
           System.fetch_env!("BOT_USER_ID")
         ),
-        WordMapStore.new(
-          [storage_dir, "word_map.json"]
-          |> Path.join()
-          |> Path.expand()
-        ),
-        MessageStore.new(
-          [storage_dir, "messages.json"]
-          |> Path.join()
-          |> Path.expand()
-        )
+        word_map_store,
+        message_store
       )
 
     children = [
       {Slack.SocketMode.Client, nil},
-      {MessageController, processor}
+      {MessageController, processor},
+      {Maintainer, {target_user_id, target_channel_id, message_store, word_map_store}}
     ]
 
     opts = [strategy: :one_for_one, name: Mop8.Supervisor]
