@@ -89,9 +89,9 @@ defmodule Mop8.Bot.Processor do
 
   @spec put_message(Message.t(), WordMap.t()) :: WordMap.t()
   def put_message(message, word_map) do
-    tokens = Tokenizer.tokenize(message.text)
-
-    Enum.reduce(tokens, word_map, fn
+    message.text
+    |> Tokenizer.tokenize()
+    |> Enum.reduce(word_map, fn
       {:text, text}, acc ->
         words = Ngram.encode(text)
         WordMap.put(acc, words)
