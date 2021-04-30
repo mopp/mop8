@@ -59,7 +59,6 @@ defmodule Mop8.Bot.WordMap do
     end
   end
 
-  # FIXME: Address infinite loop.
   @spec build_sentence(t(), Selector.t()) :: {:ok, Ngram.words()} | {:error, :nothing_to_say}
   def build_sentence(word_map, selector \\ &Selector.roulette/1) when is_map(word_map) do
     # Select the first word.
@@ -83,31 +82,42 @@ defmodule Mop8.Bot.WordMap do
   end
 
   defp build_sentence(word_map, next_map, selector, words) do
-    # Select the next word.
-    result =
-      next_map
-      |> Map.to_list()
-      |> selector.()
+    # f(x) = (2^x - 1.0) / 7.0
+    # 0.0 <= x <= 3.0
+    # 0.0 <= f(x) <= 1.0
+    x = length(words) * 0.05
+    break_probability = (:math.pow(2, x) - 1.0) / 7.0
 
-    case result do
-      {:ok, word} ->
-        case word_map[word] do
-          nil ->
-            info = %{
-              word_map: word_map,
-              next_map: next_map,
-              words: words
-            }
+    if :rand.uniform_real() < break_probability do
+      # Break building sentence.
+      words
+    else
+      # Select the next word.
+      result =
+        next_map
+        |> Map.to_list()
+        |> selector.()
 
-            raise "Bug: WordMap.put/2 may have a bug: #{inspect(info)}"
+      case result do
+        {:ok, word} ->
+          case word_map[word] do
+            nil ->
+              info = %{
+                word_map: word_map,
+                next_map: next_map,
+                words: words
+              }
 
-          %{next_map: next_map} ->
-            build_sentence(word_map, next_map, selector, [word | words])
-        end
+              raise "Bug: WordMap.put/2 may have a bug: #{inspect(info)}"
 
-      {:error, :no_element} ->
-        # The word is terminal.
-        words
+            %{next_map: next_map} ->
+              build_sentence(word_map, next_map, selector, [word | words])
+          end
+
+        {:error, :no_element} ->
+          # The word is terminal.
+          words
+      end
     end
   end
 end
