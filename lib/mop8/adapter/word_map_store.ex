@@ -33,6 +33,12 @@ defimpl Mop8.Bot.Repo.WordMap, for: Mop8.Adapter.WordMapStore do
         end)
 
       {:ok, {store, word_map}}
+    else
+      {:error, :enoent} ->
+        {:ok, {store, WordMap.new()}}
+
+      error ->
+        error
     end
   end
 

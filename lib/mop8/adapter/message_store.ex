@@ -40,6 +40,12 @@ defimpl Mop8.Bot.Repo.Message, for: Mop8.Adapter.MessageStore do
 
       # TODO: Do validation.
       {:ok, {%{store | messages: messages}, messages}}
+    else
+      {:error, :enoent} ->
+        {:ok, {store, []}}
+
+      error ->
+        error
     end
   end
 

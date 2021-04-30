@@ -9,6 +9,7 @@ defmodule Mop8.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
+      elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: dialyzer()
     ]
   end
@@ -36,6 +37,13 @@ defmodule Mop8.MixProject do
     [
       test: "test --no-start"
     ]
+  end
+
+  defp elixirc_paths(env) do
+    case env do
+      :test -> ["lib", "test/support"]
+      _ -> ["lib"]
+    end
   end
 
   defp dialyzer do
