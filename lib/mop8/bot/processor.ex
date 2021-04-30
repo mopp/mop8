@@ -6,7 +6,6 @@ defmodule Mop8.Bot.Processor do
   alias Mop8.Bot.Ngram
   alias Mop8.Bot.Replyer
   alias Mop8.Bot.Repo
-  alias Mop8.Bot.Tokenizer
   alias Mop8.Bot.WordMap
 
   defstruct [
@@ -48,7 +47,7 @@ defmodule Mop8.Bot.Processor do
         {:ok, {message_store, _messages}} = Repo.Message.all(message_store)
         {:ok, message_store} = Repo.Message.insert(message_store, message)
 
-        tokens = Tokenizer.tokenize(message.text)
+        tokens = Message.tokenize(message)
         Logger.info("Store the message. tokens: #{inspect(tokens)}")
 
         {:ok, {word_map_store, word_map}} = Repo.WordMap.load(word_map_store)
@@ -85,8 +84,8 @@ defmodule Mop8.Bot.Processor do
 
   @spec put_message(Message.t(), WordMap.t()) :: WordMap.t()
   def put_message(message, word_map) do
-    message.text
-    |> Tokenizer.tokenize()
+    message
+    |> Message.tokenize()
     |> Enum.reduce(word_map, fn
       {:text, text}, acc ->
         words = Ngram.encode(text)
