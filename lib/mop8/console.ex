@@ -2,7 +2,17 @@ defmodule Mop8.Console do
   alias Mop8.Adapter.MessageController
 
   def mention() do
-    say("<@#{System.fetch_env!("BOT_USER_ID")}>うみゃー")
+    %{
+      "type" => "event_callback",
+      "event" => %{
+        "type" => "message",
+        "user" => "hoge",
+        "text" => "<@#{System.fetch_env!("BOT_USER_ID")}>",
+        "channel" => "test_channel_id",
+        "event_ts" => "0"
+      }
+    }
+    |> MessageController.handle_payload()
   end
 
   def say(text) when is_binary(text) do
