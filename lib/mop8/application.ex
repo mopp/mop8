@@ -10,6 +10,7 @@ defmodule Mop8.Application do
   alias Mop8.Adapter.MessageController
   alias Mop8.Adapter.MessageStore
   alias Mop8.Adapter.Slack
+  alias Mop8.Adapter.SlackReplyer
   alias Mop8.Adapter.WordMapStore
   alias Mop8.Bot
   alias Mop8.Maintainer
@@ -47,7 +48,8 @@ defmodule Mop8.Application do
           System.fetch_env!("BOT_USER_ID")
         ),
         word_map_store,
-        message_store
+        message_store,
+        SlackReplyer.new()
       )
 
     children = [

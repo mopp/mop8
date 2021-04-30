@@ -4,6 +4,7 @@ defmodule Mop8.Bot.Processor do
   alias Mop8.Bot.Config
   alias Mop8.Bot.Message
   alias Mop8.Bot.Ngram
+  alias Mop8.Bot.Replyer
   alias Mop8.Bot.Repo
   alias Mop8.Bot.Tokenizer
   alias Mop8.Bot.WordMap
@@ -11,21 +12,24 @@ defmodule Mop8.Bot.Processor do
   defstruct [
     :config,
     :word_map_store,
-    :message_store
+    :message_store,
+    :replyer
   ]
 
   @type t :: %__MODULE__{
           config: Config.t(),
           word_map_store: Repo.WordMap.t(),
-          message_store: Repo.Message.t()
+          message_store: Repo.Message.t(),
+          replyer: Replyer.t()
         }
 
-  @spec new(Config.t(), Repo.WordMap.t(), Repo.Message.t()) :: t()
-  def new(config, word_map_store, message_store) do
+  @spec new(Config.t(), Repo.WordMap.t(), Repo.Message.t(), Replyer.t()) :: t()
+  def new(config, word_map_store, message_store, replyer) do
     %__MODULE__{
       config: config,
       word_map_store: word_map_store,
-      message_store: message_store
+      message_store: message_store,
+      replyer: replyer
     }
   end
 
@@ -36,7 +40,8 @@ defmodule Mop8.Bot.Processor do
     %__MODULE__{
       config: config,
       word_map_store: word_map_store,
-      message_store: message_store
+      message_store: message_store,
+      replyer: replyer
     } = processor
 
     cond do
@@ -56,9 +61,7 @@ defmodule Mop8.Bot.Processor do
 
         Logger.info("Reply: #{sentence}")
 
-        # TODO: Define interface and separate the implementation.
-        response = Slack.Web.Chat.post_message(message.channel_id, sentence)
-        Logger.info("Response: #{inspect(response)}")
+        :ok = Replyer.send(replyer, message.channel_id, sentence)
 
         %{processor | word_map_store: word_map_store}
 
