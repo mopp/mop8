@@ -35,8 +35,6 @@ defmodule Mop8.Bot.Processor do
 
   @spec process_message(t(), Message.t()) :: t()
   def process_message(processor, message) do
-    tokens = Tokenizer.tokenize(message.text)
-
     %__MODULE__{
       config: config,
       word_map_store: word_map_store,
@@ -44,33 +42,14 @@ defmodule Mop8.Bot.Processor do
       replyer: replyer
     } = processor
 
-    cond do
-      {:user_id, config.bot_user_id} == hd(tokens) ->
-        # It's mension to the bot. Create reply.
-
-        {:ok, {word_map_store, word_map}} = Repo.WordMap.load(word_map_store)
-
-        sentence =
-          case WordMap.build_sentence(word_map) do
-            {:ok, sentence} ->
-              Ngram.decode(sentence)
-
-            {:error, :nothing_to_say} ->
-              "NO DATA"
-          end
-
-        Logger.info("Reply: #{sentence}")
-
-        :ok = Replyer.send(replyer, message.channel_id, sentence)
-
-        %{processor | word_map_store: word_map_store}
-
-      message.user_id == config.target_user_id ->
+    {message_store, word_map_store} =
+      if message.user_id == config.target_user_id do
         # Store the target user message.
         {:ok, {message_store, _messages}} = Repo.Message.all(message_store)
         {:ok, message_store} = Repo.Message.insert(message_store, message)
 
-        Logger.info("Tokens: #{inspect(tokens)}")
+        tokens = Tokenizer.tokenize(message.text)
+        Logger.info("Store the message. tokens: #{inspect(tokens)}")
 
         {:ok, {word_map_store, word_map}} = Repo.WordMap.load(word_map_store)
 
@@ -78,13 +57,30 @@ defmodule Mop8.Bot.Processor do
 
         {:ok, word_map_store} = Repo.WordMap.store(word_map_store, word_map)
 
-        %{processor | message_store: message_store, word_map_store: word_map_store}
+        {message_store, word_map_store}
+      else
+        {message_store, word_map_store}
+      end
 
-      true ->
-        # Ignore
+    if Message.is_mention?(message, config.bot_user_id) do
+      # It's mension to the bot. Create reply.
+      {:ok, {_, word_map}} = Repo.WordMap.load(word_map_store)
 
-        processor
+      sentence =
+        case WordMap.build_sentence(word_map) do
+          {:ok, sentence} ->
+            Ngram.decode(sentence)
+
+          {:error, :nothing_to_say} ->
+            "NO DATA"
+        end
+
+      Logger.info("Reply: #{sentence}")
+
+      :ok = Replyer.send(replyer, message.channel_id, sentence)
     end
+
+    %{processor | word_map_store: word_map_store, message_store: message_store}
   end
 
   @spec put_message(Message.t(), WordMap.t()) :: WordMap.t()

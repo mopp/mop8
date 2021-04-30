@@ -55,4 +55,9 @@ defmodule Mop8.Bot.Message do
       channel_id: channel_id
     }
   end
+
+  @spec is_mention?(t(), String.t()) :: boolean()
+  def is_mention?(%__MODULE__{text: text}, user_id) do
+    String.match?(text, ~r/^<@#{user_id}>/)
+  end
 end
