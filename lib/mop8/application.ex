@@ -7,6 +7,7 @@ defmodule Mop8.Application do
 
   require Logger
 
+  alias Mop8.Adapter.ConsoleReplyer
   alias Mop8.Adapter.MessageController
   alias Mop8.Adapter.MessageStore
   alias Mop8.Adapter.Slack
@@ -49,7 +50,11 @@ defmodule Mop8.Application do
         ),
         word_map_store,
         message_store,
-        SlackReplyer.new()
+        if System.get_env("DRY_RUN", "true") == "true" do
+          ConsoleReplyer.new()
+        else
+          SlackReplyer.new()
+        end
       )
 
     children = [
