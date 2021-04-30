@@ -40,7 +40,7 @@ defmodule Mop8.Maintainer do
         {:error, "the given latest is not DateTime. #{latest}"}
 
       true ->
-        GenServer.call(__MODULE__, {:refetch_messages, {oldest, latest}})
+        GenServer.call(__MODULE__, {:refetch_messages, {oldest, latest}}, 30_000)
     end
   end
 
