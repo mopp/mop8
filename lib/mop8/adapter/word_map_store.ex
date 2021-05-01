@@ -1,18 +1,20 @@
 defmodule Mop8.Adapter.WordMapStore do
   alias Mop8.Bot.WordMap
 
-  @enforce_keys [:filepath]
+  @enforce_keys [:filepath, :word_map]
 
-  defstruct [:filepath]
+  defstruct [:filepath, :word_map]
 
   @opaque t :: %__MODULE__{
-            filepath: Path.t()
+            filepath: Path.t(),
+            word_map: nil | WordMap.t()
           }
 
   @spec new(Path.t()) :: t()
   def new(filepath) do
     %__MODULE__{
-      filepath: filepath
+      filepath: filepath,
+      word_map: nil
     }
   end
 end
@@ -24,7 +26,19 @@ defimpl Mop8.Bot.Repo.WordMap, for: Mop8.Adapter.WordMapStore do
 
   @spec load(Repo.WordMap.t()) ::
           {:ok, {Repo.WordMap.t(), WordMap.t()}} | {:error, reason :: any()}
-  def load(%WordMapStore{filepath: filepath} = store) do
+  def load(store) do
+    case store do
+      %WordMapStore{word_map: nil, filepath: filepath} ->
+        with {:ok, word_map} <- load_from_file(filepath) do
+          {:ok, {%{store | word_map: word_map}, word_map}}
+        end
+
+      %WordMapStore{word_map: word_map} ->
+        {:ok, {store, word_map}}
+    end
+  end
+
+  def load_from_file(filepath) do
     with {:ok, raw_json} <- File.read(filepath),
          {:ok, raw_word_map} <- Poison.decode(raw_json) do
       word_map =
@@ -32,10 +46,10 @@ defimpl Mop8.Bot.Repo.WordMap, for: Mop8.Adapter.WordMapStore do
           {key, %{count: count, next_map: next_map}}
         end)
 
-      {:ok, {store, word_map}}
+      {:ok, word_map}
     else
       {:error, :enoent} ->
-        {:ok, {store, WordMap.new()}}
+        {:ok, WordMap.new()}
 
       error ->
         error
@@ -47,7 +61,7 @@ defimpl Mop8.Bot.Repo.WordMap, for: Mop8.Adapter.WordMapStore do
   def store(%WordMapStore{filepath: filepath} = store, word_map) do
     with {:ok, raw_json} = Poison.encode(word_map),
          :ok <- File.write(Path.expand(filepath), raw_json) do
-      {:ok, store}
+      {:ok, %{store | word_map: word_map}}
     end
   end
 end

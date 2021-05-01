@@ -34,7 +34,7 @@ defmodule Mop8.Adapter.WordMapStoreTest do
           |> Path.expand()
         )
 
-      assert {:ok, store} == Repo.WordMap.store(store, word_map)
+      assert {:ok, store} = Repo.WordMap.store(store, word_map)
       assert {:ok, {store, word_map}} == Repo.WordMap.load(store)
     end
   end
