@@ -90,10 +90,7 @@ defmodule Mop8.Bot.Message do
         String.match?(text, ~r/^<@.+>$/) ->
           {:user_id, String.slice(text, 2..-2)}
 
-        String.match?(
-          text,
-          ~r/^<https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)>$/
-        ) ->
+        String.match?(text, ~r/^<http.*>$/) ->
           {:uri, String.slice(text, 1..-2)}
 
         String.match?(text, ~r/^```(\s|.)*```$/) ->
