@@ -24,6 +24,8 @@ defmodule Mop8.Bot.Processor do
 
   @spec new(Config.t(), Repo.WordMap.t(), Repo.Message.t(), Replyer.t()) :: t()
   def new(config, word_map_store, message_store, replyer) do
+    {:ok, {message_store, _messages}} = Repo.Message.all(message_store)
+
     %__MODULE__{
       config: config,
       word_map_store: word_map_store,
@@ -44,7 +46,6 @@ defmodule Mop8.Bot.Processor do
     {message_store, word_map_store} =
       if message.user_id == config.target_user_id do
         # Store the target user message.
-        {:ok, {message_store, _messages}} = Repo.Message.all(message_store)
         {:ok, message_store} = Repo.Message.insert(message_store, message)
 
         tokens = Message.tokenize(message)
