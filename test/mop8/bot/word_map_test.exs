@@ -20,51 +20,76 @@ defmodule Mop8.Bot.WordMapTest do
       word_map = WordMap.put(word_map, ["あい", "うえ"])
 
       assert %{
-               "あい" => %{count: 1, next_map: %{"うえ" => 1}},
-               "うえ" => %{count: 1, next_map: %{}}
+               "あい" => %{count: 1, next_map: %{"うえ" => 1}, is_head: true, is_tail: false},
+               "うえ" => %{count: 1, next_map: %{}, is_head: false, is_tail: true}
              } == word_map
 
       word_map = WordMap.put(word_map, ["あい", "ab"])
 
       assert %{
-               "あい" => %{count: 2, next_map: %{"うえ" => 1, "ab" => 1}},
-               "うえ" => %{count: 1, next_map: %{}},
-               "ab" => %{count: 1, next_map: %{}}
+               "あい" => %{
+                 count: 2,
+                 next_map: %{"うえ" => 1, "ab" => 1},
+                 is_head: true,
+                 is_tail: false
+               },
+               "うえ" => %{count: 1, next_map: %{}, is_head: false, is_tail: true},
+               "ab" => %{count: 1, next_map: %{}, is_head: false, is_tail: true}
              } == word_map
 
       word_map = WordMap.put(word_map, ["あい"])
 
       assert %{
-               "あい" => %{count: 3, next_map: %{"うえ" => 1, "ab" => 1}},
-               "うえ" => %{count: 1, next_map: %{}},
-               "ab" => %{count: 1, next_map: %{}}
+               "あい" => %{
+                 count: 3,
+                 next_map: %{"うえ" => 1, "ab" => 1},
+                 is_head: true,
+                 is_tail: false
+               },
+               "うえ" => %{count: 1, next_map: %{}, is_head: false, is_tail: true},
+               "ab" => %{count: 1, next_map: %{}, is_head: false, is_tail: true}
              } == word_map
 
       word_map = WordMap.put(word_map, ["xy"])
 
       assert %{
-               "あい" => %{count: 3, next_map: %{"うえ" => 1, "ab" => 1}},
-               "うえ" => %{count: 1, next_map: %{}},
-               "ab" => %{count: 1, next_map: %{}},
-               "xy" => %{count: 1, next_map: %{}}
+               "あい" => %{
+                 count: 3,
+                 next_map: %{"うえ" => 1, "ab" => 1},
+                 is_head: true,
+                 is_tail: false
+               },
+               "うえ" => %{count: 1, next_map: %{}, is_head: false, is_tail: true},
+               "ab" => %{count: 1, next_map: %{}, is_head: false, is_tail: true},
+               "xy" => %{count: 1, next_map: %{}, is_head: true, is_tail: true}
              } == word_map
 
       word_map = WordMap.put(word_map, ["あい", "うえ"])
 
       assert %{
-               "あい" => %{count: 4, next_map: %{"うえ" => 2, "ab" => 1}},
-               "うえ" => %{count: 2, next_map: %{}},
-               "ab" => %{count: 1, next_map: %{}},
-               "xy" => %{count: 1, next_map: %{}}
+               "あい" => %{
+                 count: 4,
+                 next_map: %{"うえ" => 2, "ab" => 1},
+                 is_head: true,
+                 is_tail: false
+               },
+               "うえ" => %{count: 2, next_map: %{}, is_head: false, is_tail: true},
+               "ab" => %{count: 1, next_map: %{}, is_head: false, is_tail: true},
+               "xy" => %{count: 1, next_map: %{}, is_head: true, is_tail: true}
              } == word_map
 
       word_map = WordMap.put(word_map, ["ab", "うえ"])
 
       assert %{
-               "あい" => %{count: 4, next_map: %{"うえ" => 2, "ab" => 1}},
-               "うえ" => %{count: 3, next_map: %{}},
-               "ab" => %{count: 2, next_map: %{"うえ" => 1}},
-               "xy" => %{count: 1, next_map: %{}}
+               "あい" => %{
+                 count: 4,
+                 next_map: %{"うえ" => 2, "ab" => 1},
+                 is_head: true,
+                 is_tail: false
+               },
+               "うえ" => %{count: 3, next_map: %{}, is_head: false, is_tail: true},
+               "ab" => %{count: 2, next_map: %{"うえ" => 1}, is_head: true, is_tail: false},
+               "xy" => %{count: 1, next_map: %{}, is_head: true, is_tail: true}
              } == word_map
     end
   end

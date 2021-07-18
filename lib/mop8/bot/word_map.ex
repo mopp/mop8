@@ -6,6 +6,8 @@ defmodule Mop8.Bot.WordMap do
 
   @opaque t() :: %{
             (count_map :: String.t()) => %{
+              required(:is_head) => boolean(),
+              required(:is_tail) => boolean(),
               required(:count) => pos_integer(),
               required(:next_map) => %{
                 String.t() => pos_integer()
@@ -18,8 +20,8 @@ defmodule Mop8.Bot.WordMap do
     %{}
   end
 
-  @spec put(t(), Ngram.words()) :: t()
-  def put(word_map, words) when is_map(word_map) and is_list(words) do
+  @spec put(t(), Ngram.words(), boolean()) :: t()
+  def put(word_map, words, is_head \\ true) when is_map(word_map) and is_list(words) do
     case words do
       [] ->
         word_map
@@ -28,7 +30,7 @@ defmodule Mop8.Bot.WordMap do
         count_map =
           case word_map[word] do
             nil ->
-              %{count: 1, next_map: %{}}
+              %{count: 1, next_map: %{}, is_head: is_head, is_tail: true}
 
             %{count: count} = count_map ->
               Map.put(count_map, :count, count + 1)
@@ -40,7 +42,12 @@ defmodule Mop8.Bot.WordMap do
         count_map =
           case word_map[current_word] do
             nil ->
-              %{count: 1, next_map: %{next_word => 1}}
+              %{
+                count: 1,
+                next_map: %{next_word => 1},
+                is_head: is_head,
+                is_tail: false
+              }
 
             %{
               count: current_count,
@@ -49,13 +56,15 @@ defmodule Mop8.Bot.WordMap do
               %{
                 count_map
                 | count: current_count + 1,
-                  next_map: Map.update(next_map, next_word, 1, &(&1 + 1))
+                  next_map: Map.update(next_map, next_word, 1, &(&1 + 1)),
+                  is_head: is_head,
+                  is_tail: false
               }
           end
 
         word_map
         |> Map.put(current_word, count_map)
-        |> put(rest)
+        |> put(rest, false)
     end
   end
 
@@ -64,6 +73,7 @@ defmodule Mop8.Bot.WordMap do
     # Select the first word.
     result =
       word_map
+      |> Enum.filter(fn {_, %{is_head: is_head}} -> is_head end)
       |> Enum.map(fn {word, %{count: count}} -> {word, count} end)
       |> selector.()
 
@@ -88,7 +98,7 @@ defmodule Mop8.Bot.WordMap do
     x = length(words) * 0.05
     break_probability = (:math.pow(2, x) - 1.0) / 7.0
 
-    if :rand.uniform_real() < break_probability do
+    if :rand.uniform_real() < break_probability || next_map[:is_tail] do
       # Break building sentence.
       words
     else

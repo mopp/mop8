@@ -72,6 +72,8 @@ defmodule Mop8.Bot.ProcessorTest do
   test "put_message/2 stores the given Message into the given WordMap" do
     message = Message.new("test_user_id", "hi", ~U[2021-04-19 22:12:00Z], "test_channel_id")
     word_map = WordMap.new()
-    assert %{"hi" => %{count: 1, next_map: %{}}} == Processor.put_message(message, word_map)
+
+    assert %{"hi" => %{count: 1, next_map: %{}, is_head: true, is_tail: true}} ==
+             Processor.put_message(message, word_map)
   end
 end
