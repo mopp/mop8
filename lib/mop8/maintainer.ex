@@ -40,7 +40,7 @@ defmodule Mop8.Maintainer do
         {:error, "the given latest is not DateTime. #{latest}"}
 
       true ->
-        GenServer.call(__MODULE__, {:refetch_messages, {oldest, latest}}, 30_000)
+        GenServer.call(__MODULE__, {:refetch_messages, {oldest, latest}}, 600_000)
     end
   end
 
@@ -76,13 +76,16 @@ defmodule Mop8.Maintainer do
               "user" => user_id
             } = raw_message
 
-            {message_ts, _} = Float.parse(message_ts)
-            message_at = DateTime.from_unix!(floor(message_ts * 1_000_000), :microsecond)
-            message = Message.new(user_id, text, message_at, target_channel_id)
+            if String.length(text) != 0 do
+              {message_ts, _} = Float.parse(message_ts)
+              message_at = DateTime.from_unix!(floor(message_ts * 1_000_000), :microsecond)
+              message = Message.new(user_id, text, message_at, target_channel_id)
 
-            {:ok, message_store} = Repo.Message.insert(message_store, message)
-
-            message_store
+              {:ok, message_store} = Repo.Message.insert(message_store, message)
+              message_store
+            else
+              message_store
+            end
         end)
 
       {:reply, :ok, %{state | message_store: message_store}}
