@@ -42,20 +42,8 @@ defimpl Mop8.Bot.Repo.WordMap, for: Mop8.Adapter.WordMapStore do
     with {:ok, raw_json} <- File.read(filepath),
          {:ok, raw_word_map} <- Poison.decode(raw_json) do
       word_map =
-        Map.new(raw_word_map, fn {key,
-                                  %{
-                                    "count" => count,
-                                    "next_map" => next_map,
-                                    "is_head" => is_head,
-                                    "is_tail" => is_tail
-                                  }} ->
-          {key,
-           %{
-             count: count,
-             next_map: next_map,
-             is_head: is_head,
-             is_tail: is_tail
-           }}
+        Map.new(raw_word_map, fn {key, stat} ->
+          {key, Map.new(stat, fn {k, v} -> {String.to_atom(k), v} end)}
         end)
 
       {:ok, word_map}
