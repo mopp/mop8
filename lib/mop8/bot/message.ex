@@ -88,6 +88,9 @@ defmodule Mop8.Bot.Message do
         String.match?(text, ~r/^\/.*$/) ->
           {:command, String.trim(text)}
 
+        String.match?(text, ~r/^:.*:$/) ->
+          {:emoji_only, text}
+
         true ->
           {:text, String.trim(text)}
       end
