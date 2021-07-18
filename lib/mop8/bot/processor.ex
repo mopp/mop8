@@ -75,8 +75,6 @@ defmodule Mop8.Bot.Processor do
             "NO DATA"
         end
 
-      Logger.info("Reply: #{sentence}")
-
       :ok = Replyer.send(replyer, message.channel_id, sentence)
     end
 
