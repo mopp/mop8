@@ -15,7 +15,7 @@ defimpl Mop8.Bot.Replyer, for: Mop8.Adapter.ConsoleReplyer do
 
   @spec send(ConsoleReplyer.t(), String.t(), String.t()) :: :ok
   def send(%ConsoleReplyer{}, channnel_id, text) do
-    Logger.info("Reply: #{text} at #{channnel_id}")
+    Logger.info("Reply: <#{text}> at #{channnel_id}")
 
     :ok
   end
