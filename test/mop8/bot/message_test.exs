@@ -109,6 +109,22 @@ defmodule Mop8.Bot.MessageTest do
       ] == Message.tokenize(message)
     )
 
+    message = build_message("/hoge_command")
+
+    assert(
+      [
+        {:command, "/hoge_command"},
+      ] == Message.tokenize(message)
+    )
+
+    message = build_message("aaa / bbb")
+
+    assert(
+      [
+        {:text, "aaa / bbb"},
+      ] == Message.tokenize(message)
+    )
+
     message =
       build_message(
         "クリーンアーキテクチャ本のメモを読み直してる\n<https://scrapbox.io/mopp/Clean_Architecture_%E9%81%94%E4%BA%BA%E3%81%AB%E5%AD%A6%E3%81%B6%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%AE%E6%A7%8B%E9%80%A0%E3%81%A8%E8%A8%AD%E8%A8%88|https://scrapbox.io/mopp/Clean_Architecture_%E9%81%94%E4%BA%BA%E3%81%AB%E5%AD%A6%E[…]%E3%82%A2%E3%81%AE%E6%A7%8B%E9%80%A0%E3%81%A8%E8%A8%AD%E8%A8%88>"
