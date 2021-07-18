@@ -43,6 +43,10 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
 
         {:ok, state}
 
+      "disconnect" ->
+        # https://api.slack.com/apis/connections/socket-implement#disconnect
+        {:close, state}
+
       "events_api" ->
         payload = message["payload"]
 
