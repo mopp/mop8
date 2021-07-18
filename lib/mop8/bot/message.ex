@@ -77,7 +77,7 @@ defmodule Mop8.Bot.Message do
   end
 
   defp split(text) do
-    String.split(text, ~r/<.+>|```(\s|.)*```|\*.*\*|&gt;.*\n/, include_captures: true, trim: true)
+    String.split(text, ~r/<.+>|```(\s|.)*```|\*.*\*|&gt;.*/, include_captures: true, trim: true)
   end
 
   defp tokenize([], acc) do
@@ -99,8 +99,8 @@ defmodule Mop8.Bot.Message do
         String.match?(text, ~r/^\*.+\*$/) ->
           {:bold, String.slice(text, 1..-2)}
 
-        String.match?(text, ~r/^&gt;.*\n$/) ->
-          {:quote, String.slice(text, 5..-2)}
+        String.match?(text, ~r/^&gt;.*$/) ->
+          {:quote, String.slice(text, 5..-1)}
 
         true ->
           {:text, String.trim(text)}
