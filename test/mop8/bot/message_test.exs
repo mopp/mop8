@@ -133,6 +133,15 @@ defmodule Mop8.Bot.MessageTest do
         {:text, ":hoge: あああ"}
       ] == Message.tokenize(message)
     )
+
+    message = build_message("あいう\nえお")
+
+    assert(
+      [
+        {:text, "あいう"},
+        {:text, "えお"}
+      ] == Message.tokenize(message)
+    )
   end
 
   def build_message(text) do

@@ -92,11 +92,23 @@ defmodule Mop8.Bot.Message do
           {:emoji_only, text}
 
         true ->
-          {:text, String.trim(text)}
+          nil
       end
 
-    if token == {:text, ""} do
-      tokenize(rest, acc)
+    if token == nil do
+      case String.trim(text) do
+        "" ->
+          tokenize(rest, acc)
+
+        text ->
+          acc =
+            String.split(text, "\n", trim: true)
+            |> Enum.reduce(acc, fn text, acc ->
+              [{:text, text} | acc]
+            end)
+
+          tokenize(rest, acc)
+      end
     else
       tokenize(rest, [token | acc])
     end
