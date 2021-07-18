@@ -6,43 +6,23 @@ defmodule Mop8.Bot.MessageTest do
 
   test "new/4 raises InvalidMessageError when invalid parameter is given" do
     assert_raise InvalidMessageError, fn ->
-      Message.new(123, "hi", ~U[2021-04-30 22:12:00Z], "test_channel_id")
+      Message.new(123, ~U[2021-04-30 22:12:00Z])
     end
 
     assert_raise InvalidMessageError, fn ->
-      Message.new("piyo", 123, ~U[2021-04-30 22:12:00Z], "test_channel_id")
-    end
-
-    assert_raise InvalidMessageError, fn ->
-      Message.new("piyo", "hi", 123, "test_channel_id")
-    end
-
-    assert_raise InvalidMessageError, fn ->
-      Message.new("piyo", "hi", ~U[2021-04-30 22:12:00Z], 123)
+      Message.new("hi", 123)
     end
   end
 
   describe "is_mention?/2" do
     test "returns true when the given message is mention to the given user ID" do
-      message =
-        Message.new(
-          "test_user_id",
-          "<@bot_user_id> hi",
-          ~U[2021-04-30 22:12:00Z],
-          "test_channel_id"
-        )
+      message = Message.new("<@bot_user_id> hi", ~U[2021-04-30 22:12:00Z])
 
       assert true == Message.is_mention?(message, "bot_user_id")
     end
 
     test "returns false when the given message is NOT mention to the given user ID" do
-      message =
-        Message.new(
-          "test_user_id",
-          "<@bot_user_id> hi",
-          ~U[2021-04-30 22:12:00Z],
-          "test_channel_id"
-        )
+      message = Message.new("<@bot_user_id> hi", ~U[2021-04-30 22:12:00Z])
 
       assert false == Message.is_mention?(message, "hoge")
     end
@@ -105,7 +85,7 @@ defmodule Mop8.Bot.MessageTest do
     assert(
       [
         {:text, "hogeだった"},
-        {:quote, "hogehogeいろは"},
+        {:quote, "hogehogeいろは"}
       ] == Message.tokenize(message)
     )
 
@@ -113,7 +93,7 @@ defmodule Mop8.Bot.MessageTest do
 
     assert(
       [
-        {:command, "/hoge_command"},
+        {:command, "/hoge_command"}
       ] == Message.tokenize(message)
     )
 
@@ -121,7 +101,7 @@ defmodule Mop8.Bot.MessageTest do
 
     assert(
       [
-        {:text, "aaa / bbb"},
+        {:text, "aaa / bbb"}
       ] == Message.tokenize(message)
     )
 
@@ -140,6 +120,6 @@ defmodule Mop8.Bot.MessageTest do
   end
 
   def build_message(text) do
-    Message.new("hoge", text, ~U[2021-04-30 22:12:00Z], "test_channel_id")
+    Message.new(text, ~U[2021-04-30 22:12:00Z])
   end
 end

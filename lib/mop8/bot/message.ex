@@ -2,34 +2,22 @@ defmodule Mop8.Bot.Message do
   alias Mop8.Bot.Error.InvalidMessageError
 
   @enforce_keys [
-    :user_id,
     :text,
-    :event_at,
-    :channel_id
+    :event_at
   ]
 
   defstruct [
-    :user_id,
     :text,
-    :event_at,
-    :channel_id
+    :event_at
   ]
 
   @type t :: %__MODULE__{
-          user_id: String.t(),
           text: String.t(),
-          event_at: DateTime.t(),
-          channel_id: String.t()
+          event_at: DateTime.t()
         }
 
-  @spec new(String.t(), String.t(), DateTime.t(), String.t()) :: t()
-  def new(user_id, text, event_at, channel_id) do
-    if !is_binary(user_id) || String.length(user_id) == 0 do
-      msg = "The user ID must be non empty string. user_id: #{user_id}"
-
-      raise InvalidMessageError, msg
-    end
-
+  @spec new(String.t(), DateTime.t()) :: t()
+  def new(text, event_at) do
     if !is_binary(text) || String.length(text) == 0 do
       msg = "The text must be non empty string. text: #{text}"
 
@@ -42,17 +30,9 @@ defmodule Mop8.Bot.Message do
       raise InvalidMessageError, msg
     end
 
-    if !is_binary(channel_id) || String.length(channel_id) == 0 do
-      msg = "The channel ID must be non empty string. channel_id: #{channel_id}"
-
-      raise InvalidMessageError, msg
-    end
-
     %__MODULE__{
-      user_id: user_id,
       text: text,
-      event_at: event_at,
-      channel_id: channel_id
+      event_at: event_at
     }
   end
 
@@ -77,7 +57,10 @@ defmodule Mop8.Bot.Message do
   end
 
   defp split(text) do
-    String.split(text, ~r/<.+>|```(\s|.)*```|\*.*\*|&gt;.*|^\/.*/, include_captures: true, trim: true)
+    String.split(text, ~r/<.+>|```(\s|.)*```|\*.*\*|&gt;.*|^\/.*/,
+      include_captures: true,
+      trim: true
+    )
   end
 
   defp tokenize([], acc) do

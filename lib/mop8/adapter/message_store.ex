@@ -30,10 +30,9 @@ defimpl Mop8.Bot.Repo.Message, for: Mop8.Adapter.MessageStore do
     with {:ok, raw_json} <- File.read(filepath),
          {:ok, raw_messages} <- Poison.decode(raw_json, keys: :atoms!),
          {:ok, raw_messages} <- validate_raw_messages(raw_messages) do
-      # :user_id is just for creating atom for Poison.
       messages =
         raw_messages
-        |> Enum.map(fn %{event_at: event_at, user_id: _user_id} = raw_message ->
+        |> Enum.map(fn %{event_at: event_at} = raw_message ->
           {:ok, event_at, _} = DateTime.from_iso8601(event_at)
           struct(Message, %{raw_message | event_at: event_at})
         end)

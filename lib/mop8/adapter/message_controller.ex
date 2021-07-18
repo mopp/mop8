@@ -45,9 +45,9 @@ defmodule Mop8.Adapter.MessageController do
         {event_ts, _} = Float.parse(event_ts)
         event_at = DateTime.from_unix!(floor(event_ts * 1_000_000), :microsecond)
 
-        message = Message.new(user_id, text, event_at, channel_id)
+        message = Message.new(text, event_at)
 
-        Processor.process_message(processor, message)
+        Processor.process_message(processor, message, user_id, channel_id)
 
       _ ->
         processor

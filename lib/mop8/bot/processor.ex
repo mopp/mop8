@@ -34,8 +34,8 @@ defmodule Mop8.Bot.Processor do
     }
   end
 
-  @spec process_message(t(), Message.t()) :: t()
-  def process_message(processor, message) do
+  @spec process_message(t(), Message.t(), String.t(), String.t()) :: t()
+  def process_message(processor, message, user_id, channel_id) do
     %__MODULE__{
       config: config,
       word_map_store: word_map_store,
@@ -44,7 +44,7 @@ defmodule Mop8.Bot.Processor do
     } = processor
 
     {message_store, word_map_store} =
-      if message.user_id == config.target_user_id do
+      if user_id == config.target_user_id do
         # Store the target user message.
         {:ok, message_store} = Repo.Message.insert(message_store, message)
 
@@ -75,7 +75,7 @@ defmodule Mop8.Bot.Processor do
             "NO DATA"
         end
 
-      :ok = Replyer.send(replyer, message.channel_id, sentence)
+      :ok = Replyer.send(replyer, channel_id, sentence)
     end
 
     %{processor | word_map_store: word_map_store, message_store: message_store}

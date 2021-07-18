@@ -43,10 +43,9 @@ defmodule Mop8.Bot.ProcessorTest do
       processor: processor,
       test_replyer: test_replyer
     } do
-      message =
-        Message.new("hoge", "<@test_bot_id> hi", ~U[2021-04-30 22:12:00Z], "test_channel_id")
+      message = Message.new("<@test_bot_id> hi", ~U[2021-04-30 22:12:00Z])
 
-      Processor.process_message(processor, message)
+      Processor.process_message(processor, message, "hoge", "test_channel_id")
 
       assert ["NO DATA"] = TestReplyer.get_replies(test_replyer)
     end
@@ -55,22 +54,16 @@ defmodule Mop8.Bot.ProcessorTest do
       processor: processor,
       test_replyer: test_replyer
     } do
-      message =
-        Message.new(
-          "test_target_user_id",
-          "<@test_bot_id> hi",
-          ~U[2021-04-30 22:12:00Z],
-          "test_channel_id"
-        )
+      message = Message.new("<@test_bot_id> hi", ~U[2021-04-30 22:12:00Z])
 
-      Processor.process_message(processor, message)
+      Processor.process_message(processor, message, "test_target_user_id", "test_channel_id")
 
       assert ["hi"] = TestReplyer.get_replies(test_replyer)
     end
   end
 
   test "put_message/2 stores the given Message into the given WordMap" do
-    message = Message.new("test_user_id", "hi", ~U[2021-04-19 22:12:00Z], "test_channel_id")
+    message = Message.new("hi", ~U[2021-04-19 22:12:00Z])
     word_map = WordMap.new()
 
     assert %{"hi" => %{count: 1, heads: 1, nexts: [], tails: 1}} ==
