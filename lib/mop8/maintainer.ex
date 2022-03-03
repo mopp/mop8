@@ -4,7 +4,7 @@ defmodule Mop8.Maintainer do
   require Logger
 
   alias Mop8.Bot.Message
-  alias Mop8.Bot.Processor
+  alias Mop8.Bot.Persona
   alias Mop8.Bot.Repo
   alias Mop8.Bot.WordMap
 
@@ -103,7 +103,7 @@ defmodule Mop8.Maintainer do
 
     reply =
       with {:ok, {_, messages}} <- Repo.Message.all(message_store),
-           word_map <- Enum.reduce(messages, WordMap.new(), &Processor.put_message/2),
+           word_map <- Enum.reduce(messages, WordMap.new(), &Persona.put_message/2),
            {:ok, _} <- Repo.WordMap.store(word_map_store, word_map) do
         :ok
       end

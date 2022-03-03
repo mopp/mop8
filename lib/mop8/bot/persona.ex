@@ -1,4 +1,4 @@
-defmodule Mop8.Bot.Processor do
+defmodule Mop8.Bot.Persona do
   require Logger
 
   alias Mop8.Bot.Config
@@ -35,13 +35,13 @@ defmodule Mop8.Bot.Processor do
   end
 
   @spec process_message(t(), Message.t(), String.t(), String.t()) :: t()
-  def process_message(processor, message, user_id, channel_id) do
+  def process_message(persona, message, user_id, channel_id) do
     %__MODULE__{
       config: config,
       word_map_store: word_map_store,
       message_store: message_store,
       replyer: replyer
-    } = processor
+    } = persona
 
     {message_store, word_map_store} =
       if user_id == config.target_user_id do
@@ -78,7 +78,7 @@ defmodule Mop8.Bot.Processor do
       :ok = Replyer.send(replyer, channel_id, sentence)
     end
 
-    %{processor | word_map_store: word_map_store, message_store: message_store}
+    %{persona | word_map_store: word_map_store, message_store: message_store}
   end
 
   @spec put_message(Message.t(), WordMap.t()) :: WordMap.t()

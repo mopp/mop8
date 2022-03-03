@@ -1,11 +1,11 @@
-defmodule Mop8.Bot.ProcessorTest do
+defmodule Mop8.Bot.PersonaTest do
   use ExUnit.Case, async: true
 
   alias Mop8.Adapter.MessageStore
   alias Mop8.Adapter.WordMapStore
   alias Mop8.Bot.Config
   alias Mop8.Bot.Message
-  alias Mop8.Bot.Processor
+  alias Mop8.Bot.Persona
   alias Mop8.Bot.WordMap
   alias Support.TestReplyer
 
@@ -17,8 +17,8 @@ defmodule Mop8.Bot.ProcessorTest do
 
       test_replyer = TestReplyer.new()
 
-      processor =
-        Processor.new(
+      persona =
+        Persona.new(
           Config.new(
             "test_target_user_id",
             "test_bot_id"
@@ -36,27 +36,27 @@ defmodule Mop8.Bot.ProcessorTest do
           test_replyer
         )
 
-      {:ok, processor: processor, test_replyer: test_replyer}
+      {:ok, persona: persona, test_replyer: test_replyer}
     end
 
     test "creates empty reply when it receives mention and the WordMap is empty", %{
-      processor: processor,
+      persona: persona,
       test_replyer: test_replyer
     } do
       message = Message.new("<@test_bot_id> hi", ~U[2021-04-30 22:12:00Z])
 
-      Processor.process_message(processor, message, "hoge", "test_channel_id")
+      Persona.process_message(persona, message, "hoge", "test_channel_id")
 
       assert ["NO DATA"] = TestReplyer.get_replies(test_replyer)
     end
 
     test "creates reply when it receives mention", %{
-      processor: processor,
+      persona: persona,
       test_replyer: test_replyer
     } do
       message = Message.new("<@test_bot_id> hi", ~U[2021-04-30 22:12:00Z])
 
-      Processor.process_message(processor, message, "test_target_user_id", "test_channel_id")
+      Persona.process_message(persona, message, "test_target_user_id", "test_channel_id")
 
       assert ["hi"] = TestReplyer.get_replies(test_replyer)
     end
@@ -67,6 +67,6 @@ defmodule Mop8.Bot.ProcessorTest do
     word_map = WordMap.new()
 
     assert %{"hi" => %{count: 1, heads: 1, nexts: [], tails: 1}} ==
-             Processor.put_message(message, word_map)
+             Persona.put_message(message, word_map)
   end
 end

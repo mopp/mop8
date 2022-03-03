@@ -42,8 +42,8 @@ defmodule Mop8.Application do
         |> Path.expand()
       )
 
-    processor =
-      Bot.Processor.new(
+    persona =
+      Bot.Persona.new(
         Bot.Config.new(
           target_user_id,
           System.fetch_env!("BOT_USER_ID")
@@ -59,7 +59,7 @@ defmodule Mop8.Application do
 
     children = [
       {Slack.SocketMode.Client, System.fetch_env!("SLACK_APP_LEVEL_TOKEN")},
-      {MessageController, processor},
+      {MessageController, persona},
       {Maintainer, {target_user_id, target_channel_id, message_store, word_map_store}}
     ]
 

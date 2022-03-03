@@ -4,11 +4,11 @@ defmodule Mop8.Adapter.MessageController do
   require Logger
 
   alias Mop8.Bot.Message
-  alias Mop8.Bot.Processor
+  alias Mop8.Bot.Persona
 
-  @spec start_link(Processor.t()) :: GenServer.on_start()
-  def start_link(processor) do
-    GenServer.start_link(__MODULE__, %{processor: processor}, name: __MODULE__)
+  @spec start_link(Persona.t()) :: GenServer.on_start()
+  def start_link(persona) do
+    GenServer.start_link(__MODULE__, %{persona: persona}, name: __MODULE__)
   end
 
   @spec handle_payload(map()) :: :ok
@@ -24,13 +24,13 @@ defmodule Mop8.Adapter.MessageController do
   end
 
   @impl GenServer
-  def handle_cast({:payload, payload}, %{processor: processor} = state) do
-    processor = handle_payload(payload, processor)
+  def handle_cast({:payload, payload}, %{persona: persona} = state) do
+    persona = handle_payload(payload, persona)
 
-    {:noreply, %{state | processor: processor}}
+    {:noreply, %{state | persona: persona}}
   end
 
-  defp handle_payload(payload, processor) do
+  defp handle_payload(payload, persona) do
     case payload do
       %{
         "type" => "event_callback",
@@ -47,10 +47,10 @@ defmodule Mop8.Adapter.MessageController do
 
         message = Message.new(text, event_at)
 
-        Processor.process_message(processor, message, user_id, channel_id)
+        persona.process_message(persona, message, user_id, channel_id)
 
       _ ->
-        processor
+        persona
     end
   end
 end
