@@ -3,8 +3,6 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
 
   require Logger
 
-  alias Mop8.Adapter.MessageController
-
   @slack_api_url "https://slack.com/api/apps.connections.open"
 
   @spec start_link(String.t()) :: {:ok, pid()} | {:error, term()}
@@ -52,7 +50,27 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
 
         Logger.info("Event API payload: #{inspect(payload)}")
 
-        MessageController.handle_payload(payload)
+        case payload do
+          %{
+            "type" => "event_callback",
+            "event" => %{
+              "type" => "message",
+              "user" => user_id,
+              "text" => text,
+              "channel" => channel_id,
+              "event_ts" => event_ts
+            }
+          } ->
+            {event_ts, _} = Float.parse(event_ts)
+            event_at = DateTime.from_unix!(floor(event_ts * 1_000_000), :microsecond)
+
+            message = Message.new(text, event_at)
+
+            Persona.talk(message, user_id, channel_id)
+
+          _ ->
+            nil
+        end
 
         body = Poison.encode!(%{envelope_id: message["envelope_id"]})
 

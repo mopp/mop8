@@ -8,7 +8,6 @@ defmodule Mop8.Application do
   require Logger
 
   alias Mop8.Adapter.ConsoleReplyer
-  alias Mop8.Adapter.MessageController
   alias Mop8.Adapter.MessageStore
   alias Mop8.Adapter.Slack
   alias Mop8.Adapter.SlackReplyer
@@ -27,6 +26,12 @@ defmodule Mop8.Application do
     target_user_id = System.fetch_env!("TARGET_USER_ID")
     target_channel_id = System.fetch_env!("TARGET_CHANNEL_ID")
 
+    config =
+      Bot.Config.new(
+        target_user_id,
+        System.fetch_env!("BOT_USER_ID")
+      )
+
     # TODO: Add exlusive control.
     message_store =
       MessageStore.new(
@@ -42,28 +47,24 @@ defmodule Mop8.Application do
         |> Path.expand()
       )
 
-    persona =
-      Bot.Persona.new(
-        Bot.Config.new(
-          target_user_id,
-          System.fetch_env!("BOT_USER_ID")
-        ),
-        word_map_store,
-        message_store,
-        if System.get_env("DRY_RUN", "true") == "true" do
-          ConsoleReplyer.new()
-        else
-          SlackReplyer.new()
-        end
-      )
+    replyer =
+      if System.get_env("DRY_RUN", "true") == "true" do
+        ConsoleReplyer.new()
+      else
+        SlackReplyer.new()
+      end
 
     children = [
       {Slack.SocketMode.Client, System.fetch_env!("SLACK_APP_LEVEL_TOKEN")},
-      {MessageController, persona},
+      {Bot.Persona, {config, word_map_store, message_store, replyer}},
       {Maintainer, {target_user_id, target_channel_id, message_store, word_map_store}}
     ]
 
-    opts = [strategy: :one_for_one, name: Mop8.Supervisor]
+    opts = [
+      strategy: :one_for_one,
+      name: Mop8.Supervisor
+    ]
+
     Supervisor.start_link(children, opts)
   end
 end
