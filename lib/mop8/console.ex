@@ -15,6 +15,10 @@ defmodule Mop8.Console do
     |> Persona.talk(fetch_user_id(), @channel_id)
   end
 
+  def reconstruct() do
+    Persona.reconstruct()
+  end
+
   defp fetch_bot_id do
     System.fetch_env!("BOT_USER_ID")
   end

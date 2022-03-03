@@ -30,6 +30,11 @@ defmodule Mop8.Bot.Persona do
     GenServer.call(__MODULE__, {:talk, {message, user_id, channel_id}}, 600_000)
   end
 
+  @spec reconstruct() :: :ok
+  def reconstruct do
+    GenServer.call(__MODULE__, :reconstruct)
+  end
+
   @impl GenServer
   def init(state) do
     Logger.info("Init #{__MODULE__}. state: #{inspect(state)}")
@@ -72,6 +77,25 @@ defmodule Mop8.Bot.Persona do
     {:reply, :ok, %{state | word_map_store: word_map_store, message_store: message_store}}
   end
 
+  @impl GenServer
+  def handle_call(
+        :reconstruct,
+        _from,
+        %{
+          word_map_store: word_map_store,
+          message_store: message_store
+        } = state
+      ) do
+    with {:ok, {_, messages}} <- Repo.Message.all(message_store),
+         word_map <- Enum.reduce(messages, WordMap.new(), &put_message/2),
+         {:ok, _} <- Repo.WordMap.store(word_map_store, word_map) do
+      {:reply, :ok, %{state | word_map_store: word_map_store, message_store: message_store}}
+    else
+      {:error, _reason} = err ->
+        {:reply, err, state}
+    end
+  end
+
   defp store_message(message, message_store, word_map_store) do
     {:ok, message_store} = Repo.Message.insert(message_store, message)
 
@@ -88,7 +112,7 @@ defmodule Mop8.Bot.Persona do
   end
 
   @spec put_message(Message.t(), WordMap.t()) :: WordMap.t()
-  def put_message(message, word_map) do
+  defp put_message(message, word_map) do
     message
     |> Message.tokenize()
     |> Enum.reduce(word_map, fn
