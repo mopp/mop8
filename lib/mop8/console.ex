@@ -1,24 +1,46 @@
 defmodule Mop8.Console do
+  use GenServer
+
   require Logger
 
   alias Mop8.Bot.Persona
   alias Mop8.Bot.Message
 
-  @channel_id "test_channel_id"
+  @spec start_link({String.t(), String.t(), String.t()}) :: GenServer.on_start()
+  def start_link({bot_user_id, target_user_id, target_channel_id}) do
+    GenServer.start_link(
+      __MODULE__,
+      %{
+        bot_user_id: bot_user_id,
+        target_user_id: target_user_id,
+        target_channel_id: target_channel_id
+      },
+      name: __MODULE__
+    )
+  end
 
+  @impl GenServer
+  def init(state) do
+    state = Map.put(state, :console_channel_id, "console")
+
+    Logger.info("Init #{__MODULE__}. state: #{inspect(state)}")
+
+    {:ok, state}
+  end
+
+  @spec mention() :: :ok
   def mention() do
-    "<@#{fetch_bot_id()}>"
-    |> Message.new(DateTime.now!("Etc/UTC"))
-    |> Persona.talk(fetch_user_id(), @channel_id)
+    GenServer.call(__MODULE__, :mention)
   end
 
-  def say(text) when is_binary(text) do
-    Message.new(text, DateTime.now!("Etc/UTC"))
-    |> Persona.talk(fetch_user_id(), @channel_id)
+  @spec talk(String.t()) :: :ok
+  def talk(text) when is_binary(text) do
+    GenServer.call(__MODULE__, {:talk, text})
   end
 
+  @spec reconstruct() :: :ok
   def reconstruct() do
-    Persona.reconstruct()
+    GenServer.call(__MODULE__, :reconstruct)
   end
 
   @spec refetch_messages(String.t(), String.t()) :: :ok | {:error, reason :: any()}
@@ -39,40 +61,61 @@ defmodule Mop8.Console do
         {:error, "the given latest is not DateTime. #{latest}"}
 
       true ->
-        with {:ok, raw_messages} <-
-               fetch_raw_messages(fetch_user_id(), fetch_target_channel_id(), oldest, latest) do
-          Logger.info("The number of fetched messages: #{length(raw_messages)}")
-
-          Enum.each(raw_messages, fn raw_message ->
-            %{
-              "text" => text,
-              "ts" => message_ts
-            } = raw_message
-
-            if String.length(text) != 0 do
-              {message_ts, _} = Float.parse(message_ts)
-              message_at = DateTime.from_unix!(floor(message_ts * 1_000_000), :microsecond)
-
-              Persona.listen(Message.new(text, message_at))
-            end
-          end)
-        else
-          error ->
-            error
-        end
+        GenServer.call(__MODULE__, {:refetch_messages, oldest, latest}, 10 * 60 * 1000)
     end
   end
 
-  defp fetch_bot_id do
-    System.fetch_env!("BOT_USER_ID")
+  @impl GenServer
+  def handle_call(:mention, _from, state) do
+    :ok =
+      "<@#{state[:bot_user_id]}>"
+      |> Message.new(DateTime.now!("Etc/UTC"))
+      |> Persona.talk(state[:target_user_id], state[:console_channel_id])
+
+    {:reply, :ok, state}
   end
 
-  defp fetch_user_id do
-    System.fetch_env!("TARGET_USER_ID")
+  @impl GenServer
+  def handle_call({:talk, text}, _from, state) do
+    :ok =
+      Message.new(text, DateTime.now!("Etc/UTC"))
+      |> Persona.talk(state[:target_user_id], state[:console_channel_id])
+
+    {:reply, :ok, state}
   end
 
-  defp fetch_target_channel_id do
-    System.fetch_env!("TARGET_CHANNEL_ID")
+  @impl GenServer
+  def handle_call(:reconstruct, _from, state) do
+    :ok = Persona.reconstruct()
+
+    {:reply, :ok, state}
+  end
+
+  @impl GenServer
+  def handle_call({:refetch_messages, oldest, latest}, _from, state) do
+    with {:ok, raw_messages} <-
+           fetch_raw_messages(state[:target_user_id], state[:target_channel_id], oldest, latest) do
+      Logger.info("The number of fetched messages: #{length(raw_messages)}")
+
+      Enum.each(raw_messages, fn raw_message ->
+        %{
+          "text" => text,
+          "ts" => message_ts
+        } = raw_message
+
+        if String.length(text) != 0 do
+          {message_ts, _} = Float.parse(message_ts)
+          message_at = DateTime.from_unix!(floor(message_ts * 1_000_000), :microsecond)
+
+          Persona.listen(Message.new(text, message_at))
+        end
+      end)
+
+      {:reply, :ok, state}
+    else
+      error ->
+        {:reply, error, state}
+    end
   end
 
   defp is_datetime?(x) do
