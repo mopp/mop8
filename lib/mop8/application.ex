@@ -13,7 +13,6 @@ defmodule Mop8.Application do
   alias Mop8.Adapter.SlackReplyer
   alias Mop8.Adapter.WordMapStore
   alias Mop8.Bot
-  alias Mop8.Maintainer
 
   @impl true
   def start(_type, _args) do
@@ -24,7 +23,6 @@ defmodule Mop8.Application do
     storage_dir = System.fetch_env!("MOP8_STORAGE_DIR")
 
     target_user_id = System.fetch_env!("TARGET_USER_ID")
-    target_channel_id = System.fetch_env!("TARGET_CHANNEL_ID")
 
     config =
       Bot.Config.new(
@@ -56,8 +54,7 @@ defmodule Mop8.Application do
 
     children = [
       {Slack.SocketMode.Client, System.fetch_env!("SLACK_APP_LEVEL_TOKEN")},
-      {Bot.Persona, {config, word_map_store, message_store, replyer}},
-      {Maintainer, {target_user_id, target_channel_id, message_store, word_map_store}}
+      {Bot.Persona, {config, word_map_store, message_store, replyer}}
     ]
 
     opts = [

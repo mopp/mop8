@@ -35,6 +35,11 @@ defmodule Mop8.Bot.Persona do
     GenServer.call(__MODULE__, :reconstruct)
   end
 
+  @spec listen(Message.t()) :: :ok
+  def listen(messages) do
+    :ok = GenServer.call(__MODULE__, {:listen, messages})
+  end
+
   @impl GenServer
   def init(state) do
     Logger.info("Init #{__MODULE__}. state: #{inspect(state)}")
@@ -53,7 +58,7 @@ defmodule Mop8.Bot.Persona do
 
     {message_store, word_map_store} =
       if user_id == config.target_user_id do
-        store_message(message, message_store, word_map_store)
+        analyze_message(message, message_store, word_map_store)
       else
         {message_store, word_map_store}
       end
@@ -96,7 +101,13 @@ defmodule Mop8.Bot.Persona do
     end
   end
 
-  defp store_message(message, message_store, word_map_store) do
+  def handle_call({:listen, message}, _from, %{message_store: message_store} = state) do
+    {:ok, message_store} = Repo.Message.insert(message_store, message)
+
+    {:reply, :ok, %{state | message_store: message_store}}
+  end
+
+  defp analyze_message(message, message_store, word_map_store) do
     {:ok, message_store} = Repo.Message.insert(message_store, message)
 
     tokens = Message.tokenize(message)
