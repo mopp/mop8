@@ -5,7 +5,7 @@ defmodule Mop8.MixProject do
     [
       app: :mop8,
       version: "0.1.0",
-      elixir: "~> 1.12",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
