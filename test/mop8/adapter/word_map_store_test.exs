@@ -2,9 +2,9 @@ defmodule Mop8.Adapter.WordMapStoreTest do
   use ExUnit.Case
 
   alias Mop8.Adapter.WordMapStore
-  alias Mop8.Bot.Ngram
+  alias Mop8.Bot.Brain.Ngram
   alias Mop8.Bot.Repo
-  alias Mop8.Bot.WordMap
+  alias Mop8.Bot.Brain.Ngram.WordMap
 
   describe "load/1 and store/2" do
     setup do
@@ -16,7 +16,7 @@ defmodule Mop8.Adapter.WordMapStoreTest do
 
       word_map =
         source_sentences
-        |> Enum.map(&Ngram.encode/1)
+        |> Enum.map(&Ngram.Converter.encode/1)
         |> Enum.reduce(WordMap.new(), &WordMap.put(&2, &1))
 
       {:ok, %{word_map: word_map}}

@@ -1,4 +1,4 @@
-defmodule Mop8.Bot.Selector do
+defmodule Mop8.Bot.Brain.Ngram.Selector do
   @type value :: any()
   @type weight :: pos_integer()
   @type element :: {value(), weight()}

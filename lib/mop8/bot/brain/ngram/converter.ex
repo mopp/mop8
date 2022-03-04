@@ -1,7 +1,7 @@
-defmodule Mop8.Bot.Ngram do
-  @type words() :: [String.t()]
+defmodule Mop8.Bot.Brain.Ngram.Converter do
+  alias Mop8.Bot.Brain.Ngram
 
-  @spec encode(String.t(), pos_integer()) :: words()
+  @spec encode(String.t(), pos_integer()) :: Ngram.words()
   def encode(text, n \\ 2) when is_binary(text) and 0 < n do
     graphemes = String.graphemes(text)
 
@@ -14,7 +14,7 @@ defmodule Mop8.Bot.Ngram do
     end
   end
 
-  @spec decode(words(), pos_integer()) :: String.t()
+  @spec decode(Ngram.words(), pos_integer()) :: String.t()
   def decode(words, n \\ 2) when is_list(words) and 0 < n do
     case words do
       [] ->

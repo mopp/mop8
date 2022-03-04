@@ -1,16 +1,16 @@
-defmodule Mop8.Bot.NgramTest do
+defmodule Mop8.Bot.Brain.Ngram.ConverterTest do
   use ExUnit.Case, async: true
 
-  alias Mop8.Bot.Ngram
+  alias Mop8.Bot.Brain.Ngram.Converter
 
   test "encode/1 divides the given string to N-gram (default N = 2)" do
-    assert [] == Ngram.encode("")
+    assert [] == Converter.encode("")
 
-    assert ["あ"] == Ngram.encode("あ")
+    assert ["あ"] == Converter.encode("あ")
 
-    assert ["ああ"] == Ngram.encode("ああ")
+    assert ["ああ"] == Converter.encode("ああ")
 
-    assert ["あい", "いう"] == Ngram.encode("あいう")
+    assert ["あい", "いう"] == Converter.encode("あいう")
 
     assert [
              "今日",
@@ -23,16 +23,16 @@ defmodule Mop8.Bot.NgramTest do
              "です",
              "すね",
              "ね。"
-           ] == Ngram.encode("今日はいい天気ですね。")
+           ] == Converter.encode("今日はいい天気ですね。")
   end
 
   test "decode/1 concats the given N-gram to a string (default N = 2)" do
-    assert "" == Ngram.decode([])
+    assert "" == Converter.decode([])
 
-    assert "あい" == Ngram.decode(["あい"])
+    assert "あい" == Converter.decode(["あい"])
 
     assert "今日はいい天気ですね。" ==
-             Ngram.decode([
+             Converter.decode([
                "今日",
                "日は",
                "はい",
@@ -47,18 +47,18 @@ defmodule Mop8.Bot.NgramTest do
   end
 
   test "encode/1 divides the given string to N-gram (N is given)" do
-    assert ["abc"] == Ngram.encode("abc", 3)
+    assert ["abc"] == Converter.encode("abc", 3)
 
-    assert ["abc", "bcd"] == Ngram.encode("abcd", 3)
+    assert ["abc", "bcd"] == Converter.encode("abcd", 3)
 
-    assert ["aaabbbcccd", "aabbbcccde"] == Ngram.encode("aaabbbcccde", 10)
+    assert ["aaabbbcccd", "aabbbcccde"] == Converter.encode("aaabbbcccde", 10)
   end
 
   test "decode/1 concats the given N-gram to a string (N is given)" do
-    assert "abc" == Ngram.decode(["abc"], 3)
+    assert "abc" == Converter.decode(["abc"], 3)
 
-    assert "abcd" == Ngram.decode(["abc", "bcd"], 3)
+    assert "abcd" == Converter.decode(["abc", "bcd"], 3)
 
-    assert "aaabbbcccde" == Ngram.decode(["aaabbbcccd", "aabbbcccde"], 10)
+    assert "aaabbbcccde" == Converter.decode(["aaabbbcccd", "aabbbcccde"], 10)
   end
 end

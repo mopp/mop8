@@ -1,8 +1,8 @@
-defmodule Mop8.Bot.WordMap do
+defmodule Mop8.Bot.Brain.Ngram.WordMap do
   require Logger
 
-  alias Mop8.Bot.Ngram
-  alias Mop8.Bot.Selector
+  alias Mop8.Bot.Brain.Ngram
+  alias Mop8.Bot.Brain.Ngram.Selector
 
   @opaque t() :: %{
             String.t() => %{

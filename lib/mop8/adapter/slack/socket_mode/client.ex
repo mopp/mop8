@@ -3,6 +3,9 @@ defmodule Mop8.Adapter.Slack.SocketMode.Client do
 
   require Logger
 
+  alias Mop8.Bot.Message
+  alias Mop8.Bot.Persona
+
   @slack_api_url "https://slack.com/api/apps.connections.open"
 
   @spec start_link(String.t()) :: {:ok, pid()} | {:error, term()}

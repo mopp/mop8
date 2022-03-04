@@ -1,5 +1,5 @@
 defmodule Mop8.Adapter.WordMapStore do
-  alias Mop8.Bot.WordMap
+  alias Mop8.Bot.Brain.Ngram.WordMap
 
   @enforce_keys [:filepath, :word_map]
 
@@ -22,7 +22,7 @@ end
 defimpl Mop8.Bot.Repo.WordMap, for: Mop8.Adapter.WordMapStore do
   alias Mop8.Adapter.WordMapStore
   alias Mop8.Bot.Repo
-  alias Mop8.Bot.WordMap
+  alias Mop8.Bot.Brain.Ngram.WordMap
 
   @spec load(Repo.WordMap.t()) ::
           {:ok, {Repo.WordMap.t(), WordMap.t()}} | {:error, reason :: any()}

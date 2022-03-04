@@ -1,7 +1,7 @@
-defmodule Mop8.Bot.SelectorTest do
+defmodule Mop8.Bot.Brain.Ngram.SelectorTest do
   use ExUnit.Case, async: true
 
-  alias Mop8.Bot.Selector
+  alias Mop8.Bot.Brain.Ngram.Selector
 
   test "roulette/1 selects value based on roulette selection" do
     elements = [

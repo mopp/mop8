@@ -1,8 +1,8 @@
-defmodule Mop8.Bot.WordMapTest do
+defmodule Mop8.Bot.Brain.Ngram.WordMapTest do
   use ExUnit.Case, async: true
 
-  alias Mop8.Bot.Ngram
-  alias Mop8.Bot.WordMap
+  alias Mop8.Bot.Brain.Ngram.WordMap
+  alias Mop8.Bot.Brain.Ngram.Converter
 
   test "new/0 creates empty WordMap" do
     assert %{} == WordMap.new()
@@ -81,7 +81,7 @@ defmodule Mop8.Bot.WordMapTest do
 
       word_map =
         source_sentences
-        |> Enum.map(&Ngram.encode/1)
+        |> Enum.map(&Converter.encode/1)
         |> Enum.reduce(WordMap.new(), &WordMap.put(&2, &1))
 
       {:ok, %{word_map: word_map}}
@@ -103,7 +103,7 @@ defmodule Mop8.Bot.WordMapTest do
       end)
 
       assert {:ok, sentence} = WordMap.build_sentence(word_map, test_selector)
-      assert "よ。" == Ngram.decode(sentence)
+      assert "よ。" == Converter.decode(sentence)
 
       # Set test pattern.
       Agent.cast(pid, fn _ ->
@@ -115,7 +115,7 @@ defmodule Mop8.Bot.WordMapTest do
       end)
 
       assert {:ok, sentence} = WordMap.build_sentence(word_map, test_selector)
-      assert "たよ。" == Ngram.decode(sentence)
+      assert "たよ。" == Converter.decode(sentence)
 
       Agent.stop(pid)
     end

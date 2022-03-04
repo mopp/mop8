@@ -57,7 +57,8 @@ defmodule Mop8.Application do
 
     children = [
       {Slack.SocketMode.Client, System.fetch_env!("SLACK_APP_LEVEL_TOKEN")},
-      {Bot.Persona, {config, word_map_store, message_store, replyer}},
+      {Bot.Brain.Ngram, %{word_map_store: word_map_store}},
+      {Bot.Persona, {config, message_store, replyer}},
       {Console, {bot_user_id, target_user_id, target_channel_id}}
     ]
 
